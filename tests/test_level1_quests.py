@@ -1,6 +1,6 @@
 import subprocess
 
-from gameofgit.quests.level1 import INIT_REPO
+from gameofgit.quests.level1 import INIT_REPO, STAGE_A_FILE
 
 
 def test_init_repo_predicate_false_on_empty_dir(tmp_path):
@@ -22,3 +22,30 @@ def test_init_repo_quest_metadata():
     assert INIT_REPO.seed is None
     assert INIT_REPO.allowed == frozenset({"init", "status", "add", "commit"})
     assert len(INIT_REPO.hints) >= 1
+
+
+def test_stage_a_file_seed_initializes_repo(tmp_path):
+    assert STAGE_A_FILE.seed is not None
+    STAGE_A_FILE.seed(tmp_path)
+    assert (tmp_path / ".git").is_dir()
+
+
+def test_stage_a_file_predicate_false_after_seed_only(tmp_path):
+    STAGE_A_FILE.seed(tmp_path)
+    r = STAGE_A_FILE.check(tmp_path)
+    assert r.passed is False
+    assert r.detail is not None
+    assert "staged" in r.detail.lower()
+
+
+def test_stage_a_file_predicate_true_after_add(tmp_path):
+    STAGE_A_FILE.seed(tmp_path)
+    (tmp_path / "README.md").write_text("hello\n")
+    subprocess.run(["git", "add", "README.md"], cwd=tmp_path, check=True)
+    r = STAGE_A_FILE.check(tmp_path)
+    assert r.passed is True
+
+
+def test_stage_a_file_quest_metadata():
+    assert STAGE_A_FILE.slug == "stage-a-file"
+    assert STAGE_A_FILE.allowed == frozenset({"init", "status", "add", "commit"})
