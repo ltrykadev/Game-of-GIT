@@ -12,4 +12,11 @@ def test_engine_public_api_reexports():
 def test_engine_all_declares_public_api():
     import gameofgit.engine as eng
 
-    assert set(eng.__all__) == {"Quest", "CheckResult", "Outcome", "QuestSession", "EngineError"}
+    assert set(eng.__all__) == {
+        "Quest",
+        "CheckResult",
+        "Outcome",
+        "QuestSession",
+        "EngineError",
+        "suggest",
+    }

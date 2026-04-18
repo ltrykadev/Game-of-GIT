@@ -7,10 +7,10 @@ from textual.binding import Binding
 from textual.containers import Horizontal
 from textual.widgets import Static
 
-from gameofgit.engine import QuestSession
+from gameofgit.engine import QuestSession, suggest
 from gameofgit.quests import all_quests
 from gameofgit.widgets.quest_pane import QuestPane
-from gameofgit.widgets.shell import CommandSubmitted, ShellPane
+from gameofgit.widgets.shell import CommandChanged, CommandSubmitted, ShellPane
 
 _INSTRUCTIONS = (
     "Bindings: Enter submits, h reveals next hint, "
@@ -56,6 +56,15 @@ class GameOfGitApp(App):
     # ------------------------------------------------------------------
     # Event handlers
     # ------------------------------------------------------------------
+
+    def on_command_changed(self, event: CommandChanged) -> None:
+        shell = self.query_one(ShellPane)
+        allowed = self._session._quest.allowed
+        correction = suggest(event.text, allowed)
+        if correction is not None:
+            shell.set_suggestion(f"Did you mean: {correction}?")
+        else:
+            shell.set_suggestion("")
 
     def on_command_submitted(self, event: CommandSubmitted) -> None:
         shell = self.query_one(ShellPane)

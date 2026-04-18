@@ -33,6 +33,14 @@ ShellPane {
     scrollbar-gutter: stable;
 }
 
+#shell-suggestion {
+    width: 100%;
+    height: 1;
+    margin-bottom: 0;
+    color: $warning-darken-1;
+    text-style: italic dim;
+}
+
 #shell-input {
     width: 100%;
     height: auto;
