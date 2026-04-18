@@ -1,0 +1,63 @@
+/* Game of GIT — minimal two-pane layout */
+
+Screen {
+    layout: horizontal;
+}
+
+ShellPane {
+    width: 1fr;
+    height: 100%;
+    background: $surface;
+    border-right: solid $primary-darken-2;
+    layout: vertical;
+}
+
+#shell-log {
+    width: 100%;
+    height: 1fr;
+    scrollbar-gutter: stable;
+}
+
+#shell-input {
+    width: 100%;
+    height: auto;
+    dock: bottom;
+}
+
+QuestPane {
+    width: 1fr;
+    height: 100%;
+    background: $panel;
+    padding: 1 2;
+    layout: vertical;
+}
+
+#quest-title {
+    text-style: bold;
+    margin-bottom: 1;
+    color: $text;
+}
+
+#quest-brief {
+    margin-bottom: 1;
+    color: $text-muted;
+}
+
+#quest-status {
+    margin-bottom: 1;
+}
+
+#quest-hints {
+    margin-bottom: 1;
+    color: $warning;
+}
+
+#quest-advance {
+    margin-bottom: 1;
+}
+
+#quest-progress {
+    dock: bottom;
+    color: $text-muted;
+    text-style: italic;
+}
