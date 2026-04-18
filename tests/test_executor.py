@@ -39,3 +39,22 @@ def test_execute_respects_cwd(tmp_path):
     execute(["git", "init"], cwd=sub)
     assert (sub / ".git").is_dir()
     assert not (tmp_path / ".git").exists()
+
+
+def test_locale_pinned_despite_inherited_lc_all(tmp_path, monkeypatch):
+    # Even if the caller's environment has a non-English locale, git error
+    # messages must come back in English so downstream predicates can match them.
+    monkeypatch.setenv("LC_ALL", "pl_PL.UTF-8")
+    result = execute(["git", "status"], cwd=tmp_path)
+    assert result.exit_code != 0
+    assert "not a git repository" in result.stderr.lower()
+
+
+def test_git_env_vars_scrubbed(tmp_path, monkeypatch):
+    # A bogus GIT_DIR in the inherited env must not redirect git init away from
+    # cwd — the executor should strip all GIT_* variables before running.
+    bogus = str(tmp_path / "bogus_git_dir")
+    monkeypatch.setenv("GIT_DIR", bogus)
+    result = execute(["git", "init"], cwd=tmp_path)
+    assert result.exit_code == 0
+    assert (tmp_path / ".git").is_dir()

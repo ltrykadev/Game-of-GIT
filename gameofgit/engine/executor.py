@@ -11,6 +11,17 @@ class ExecResult:
     exit_code: int
 
 
+def _build_env() -> dict[str, str]:
+    """Inherit the caller's env, but scrub anything that would disturb git's
+    idea of where the repo is, and pin the locale so git's error strings are
+    stable English (our predicates and tests match on them)."""
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env["LANG"] = "C"
+    env["LC_ALL"] = "C"
+    env["LANGUAGE"] = "C"
+    return env
+
+
 def execute(argv: list[str], cwd: Path, timeout_s: float = 5.0) -> ExecResult:
     """Run a validated argv against `cwd`. No quest logic, no validation.
 
@@ -18,12 +29,11 @@ def execute(argv: list[str], cwd: Path, timeout_s: float = 5.0) -> ExecResult:
     timeout convention). Never raises for ordinary subprocess failures —
     those just show up as non-zero exit codes.
     """
-    env = {**os.environ, "LANG": "C"}
     try:
         completed = subprocess.run(
             argv,
             cwd=cwd,
-            env=env,
+            env=_build_env(),
             capture_output=True,
             text=True,
             timeout=timeout_s,
