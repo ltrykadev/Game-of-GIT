@@ -1,9 +1,33 @@
+import os
 import subprocess
 from pathlib import Path
 
 from gameofgit.engine.quest import CheckResult, Quest
 
 _ALLOWED = frozenset({"init", "status", "add", "commit"})
+
+
+def _quest_subprocess_env() -> dict[str, str]:
+    """Same env hardening the engine's executor applies: scrub GIT_* keys so
+    the player's ambient git config can't leak into seeds or predicate
+    probes, and pin the locale so git's output is stable English."""
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env["LANG"] = "C"
+    env["LC_ALL"] = "C"
+    env["LANGUAGE"] = "C"
+    return env
+
+
+def _run(args: list[str], cwd: Path, capture: bool = False) -> subprocess.CompletedProcess[str]:
+    """Run `args` under the hardened env, from `cwd`. Raises on non-zero exit."""
+    return subprocess.run(
+        args,
+        cwd=cwd,
+        env=_quest_subprocess_env(),
+        capture_output=capture,
+        text=True,
+        check=True,
+    )
 
 
 def _check_init_repo(sandbox: Path) -> CheckResult:
@@ -37,25 +61,17 @@ def _seed_initialized_repo(sandbox: Path) -> None:
 
     A local identity is required because `git commit` refuses to run without
     one, and we don't want the engine depending on whatever identity the
-    player happens to have in their global ~/.gitconfig.
+    player happens to have in their global ~/.gitconfig. The env is also
+    scrubbed of GIT_* vars and locale is pinned — same hardening the engine's
+    executor applies.
     """
-    subprocess.run(["git", "init", "-q"], cwd=sandbox, check=True)
-    subprocess.run(
-        ["git", "config", "user.email", "player@gameofgit.local"],
-        cwd=sandbox,
-        check=True,
-    )
-    subprocess.run(["git", "config", "user.name", "Player"], cwd=sandbox, check=True)
+    _run(["git", "init", "-q"], cwd=sandbox)
+    _run(["git", "config", "user.email", "player@gameofgit.local"], cwd=sandbox)
+    _run(["git", "config", "user.name", "Player"], cwd=sandbox)
 
 
 def _check_stage_a_file(sandbox: Path) -> CheckResult:
-    result = subprocess.run(
-        ["git", "diff", "--cached", "--name-only"],
-        cwd=sandbox,
-        capture_output=True,
-        text=True,
-        check=True,
-    )
+    result = _run(["git", "diff", "--cached", "--name-only"], cwd=sandbox, capture=True)
     if result.stdout.strip():
         return CheckResult(True)
     return CheckResult(

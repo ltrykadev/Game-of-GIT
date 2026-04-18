@@ -49,3 +49,15 @@ def test_stage_a_file_predicate_true_after_add(tmp_path):
 def test_stage_a_file_quest_metadata():
     assert STAGE_A_FILE.slug == "stage-a-file"
     assert STAGE_A_FILE.allowed == frozenset({"init", "status", "add", "commit"})
+
+
+def test_stage_a_file_seed_is_immune_to_ambient_git_dir(tmp_path, monkeypatch):
+    # If seed respected an inherited GIT_DIR, `git init` would place .git
+    # somewhere else (or fail). Hardened env must override it.
+    bogus = tmp_path / "bogus-git"
+    monkeypatch.setenv("GIT_DIR", str(bogus))
+    sandbox = tmp_path / "sandbox"
+    sandbox.mkdir()
+    STAGE_A_FILE.seed(sandbox)
+    assert (sandbox / ".git").is_dir()
+    assert not bogus.exists()
