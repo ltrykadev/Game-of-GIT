@@ -1,4 +1,4 @@
-# Game-of-GIT
+# Game of GIT
 
 Game of GIT is an interactive learning experience that turns mastering version control into an engaging adventure. Players step into the role of a developer progressing through levels — from basic commit actions to advanced operations like rebase, merge, and conflict resolution.
 
@@ -49,9 +49,9 @@ Every quest runs against a throwaway repo under `/tmp`; the player's working tre
 
 ## Levels
 
-### 🟢 LEVEL 1: INIT NOOB (Podstawy przetrwania)
+### LEVEL 1: INIT NOOB (Survival basics)
 
-Uczysz się, czym w ogóle jest repozytorium.
+Learn what a repository actually is.
 
 ```
 git init
@@ -62,11 +62,11 @@ git add .
 git commit -m "msg"
 ```
 
-🎯 Quest: Stwórz repo i zapisz pierwsze zmiany
+Quest: Create a repo and save your first changes.
 
-### 🔵 LEVEL 2: TIME TRAVELER (Historia)
+### LEVEL 2: TIME TRAVELER (History)
 
-Zaczynasz ogarniać przeszłość projektu.
+Start making sense of the project's past.
 
 ```
 git log
@@ -76,11 +76,11 @@ git diff
 git diff --staged
 ```
 
-🎯 Quest: Znajdź, co zepsuło kod
+Quest: Find out what broke the code.
 
-### 🟡 LEVEL 3: BRANCH MASTER (Multiświaty)
+### LEVEL 3: BRANCH MASTER (Multiverse)
 
-Wchodzisz w równoległe rzeczywistości.
+Step into parallel realities.
 
 ```
 git branch
@@ -91,11 +91,11 @@ git switch <branch>
 git switch -c <branch>
 ```
 
-🎯 Quest: Stwórz feature branch i wróć bezpiecznie
+Quest: Create a feature branch and come back safely.
 
-### 🟠 LEVEL 4: MERGE WARRIOR (Łączenie światów)
+### LEVEL 4: MERGE WARRIOR (Joining worlds)
 
-Pierwsze konflikty i chaos.
+First conflicts and chaos.
 
 ```
 git merge <branch>
@@ -104,11 +104,11 @@ git rebase <branch>
 git cherry-pick <commit>
 ```
 
-🎯 Boss fight: Rozwiąż konflikt merge
+Boss fight: Resolve a merge conflict.
 
-### 🔴 LEVEL 5: REMOTE HACKER (Świat online)
+### LEVEL 5: REMOTE HACKER (The online world)
 
-Synchronizacja z innymi graczami.
+Sync with other players.
 
 ```
 git remote -v
@@ -120,11 +120,11 @@ git push
 git push -u origin <branch>
 ```
 
-🎯 Quest: Wypchnij kod i zsynchronizuj team
+Quest: Push your code and sync with the team.
 
-### 🟣 LEVEL 6: DAMAGE CONTROL (Cofanie błędów)
+### LEVEL 6: DAMAGE CONTROL (Undoing mistakes)
 
-Naprawiasz własne (i cudze) błędy.
+Fix your own — and other people's — mistakes.
 
 ```
 git reset --soft
@@ -135,11 +135,11 @@ git restore <file>
 git restore --staged <file>
 ```
 
-🎯 Quest: Cofnij commit bez rozwalenia historii
+Quest: Undo a commit without wrecking history.
 
-### ⚫ LEVEL 7: STEALTH MODE (Praca tymczasowa)
+### LEVEL 7: STEALTH MODE (Temporary work)
 
-Znikasz i wracasz bez śladu.
+Disappear and come back without a trace.
 
 ```
 git stash
@@ -148,11 +148,11 @@ git stash list
 git stash apply
 ```
 
-🎯 Quest: Ukryj zmiany i wróć do nich później
+Quest: Hide your changes and return to them later.
 
-### 🟤 LEVEL 8: CLEANUP CREW (Porządki)
+### LEVEL 8: CLEANUP CREW (Housekeeping)
 
-Sprzątanie repo jak pro.
+Tidy up the repo like a pro.
 
 ```
 git clean -fd
@@ -161,11 +161,11 @@ git mv <file>
 git commit --amend
 ```
 
-🎯 Quest: Popraw ostatni commit
+Quest: Fix your last commit.
 
-### ⚙️ LEVEL 9: CONFIG GOD (Personalizacja)
+### LEVEL 9: CONFIG GOD (Personalization)
 
-Stajesz się GIT-owym demiurgiem.
+Become the demiurge of Git.
 
 ```
 git config --global user.name
@@ -173,11 +173,11 @@ git config --global user.email
 git config --list
 ```
 
-🎯 Quest: Skonfiguruj swoje środowisko
+Quest: Configure your environment.
 
-### 🧠 LEVEL 10: GIT NINJA (Zaawansowane techniki)
+### LEVEL 10: GIT NINJA (Advanced techniques)
 
-Zaczynasz myśleć jak Git.
+Start thinking like Git.
 
 ```
 git reflog
@@ -187,4 +187,4 @@ git tag -a v1.0 -m "msg"
 git bisect
 ```
 
-🎯 Final Boss: Znajdź commit, który wprowadził bug
+Final Boss: Find the commit that introduced the bug.
