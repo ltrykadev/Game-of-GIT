@@ -5,11 +5,17 @@ from pathlib import Path
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal
+from textual.widgets import Static
 
 from gameofgit.engine import QuestSession
 from gameofgit.quests import all_quests
 from gameofgit.widgets.quest_pane import QuestPane
 from gameofgit.widgets.shell import CommandSubmitted, ShellPane
+
+_INSTRUCTIONS = (
+    "Bindings: Enter submits, h reveals next hint, "
+    "n advances after a quest passes, Ctrl+Q quits."
+)
 
 _CSS_PATH = Path(__file__).parent / "ui.tcss"
 _QUESTS = list(all_quests())
@@ -37,7 +43,8 @@ class GameOfGitApp(App):
     # ------------------------------------------------------------------
 
     def compose(self) -> ComposeResult:
-        with Horizontal():
+        yield Static(_INSTRUCTIONS, id="instructions")
+        with Horizontal(id="panes"):
             yield ShellPane(id="shell-pane")
             yield QuestPane(
                 _QUESTS[self._quest_index],
@@ -107,4 +114,4 @@ class GameOfGitApp(App):
             id="quest-pane",
         )
         old_pane.remove()
-        self.query_one(Horizontal).mount(new_pane)
+        self.query_one("#panes", Horizontal).mount(new_pane)
