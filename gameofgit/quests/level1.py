@@ -1,21 +1,10 @@
-import os
 import subprocess
 from pathlib import Path
 
+from gameofgit.engine.env import hardened_env
 from gameofgit.engine.quest import CheckResult, Quest
 
 _ALLOWED = frozenset({"init", "status", "add", "commit"})
-
-
-def _quest_subprocess_env() -> dict[str, str]:
-    """Same env hardening the engine's executor applies: scrub GIT_* keys so
-    the player's ambient git config can't leak into seeds or predicate
-    probes, and pin the locale so git's output is stable English."""
-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
-    env["LANG"] = "C"
-    env["LC_ALL"] = "C"
-    env["LANGUAGE"] = "C"
-    return env
 
 
 def _run(args: list[str], cwd: Path, capture: bool = False) -> subprocess.CompletedProcess[str]:
@@ -23,7 +12,7 @@ def _run(args: list[str], cwd: Path, capture: bool = False) -> subprocess.Comple
     return subprocess.run(
         args,
         cwd=cwd,
-        env=_quest_subprocess_env(),
+        env=hardened_env(),
         capture_output=capture,
         text=True,
         check=True,
@@ -107,7 +96,7 @@ def _check_first_commit(sandbox: Path) -> CheckResult:
     head = subprocess.run(
         ["git", "rev-parse", "--verify", "HEAD"],
         cwd=sandbox,
-        env=_quest_subprocess_env(),
+        env=hardened_env(),
         capture_output=True,
         text=True,
     )
@@ -145,7 +134,7 @@ def _check_meaningful_message(sandbox: Path) -> CheckResult:
     count = subprocess.run(
         ["git", "rev-list", "--count", "HEAD"],
         cwd=sandbox,
-        env=_quest_subprocess_env(),
+        env=hardened_env(),
         capture_output=True,
         text=True,
     )

@@ -1,7 +1,8 @@
-import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
+
+from gameofgit.engine.env import hardened_env
 
 
 @dataclass(frozen=True)
@@ -9,17 +10,6 @@ class ExecResult:
     stdout: str
     stderr: str
     exit_code: int
-
-
-def _build_env() -> dict[str, str]:
-    """Inherit the caller's env, but scrub anything that would disturb git's
-    idea of where the repo is, and pin the locale so git's error strings are
-    stable English (our predicates and tests match on them)."""
-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
-    env["LANG"] = "C"
-    env["LC_ALL"] = "C"
-    env["LANGUAGE"] = "C"
-    return env
 
 
 def execute(argv: list[str], cwd: Path, timeout_s: float = 5.0) -> ExecResult:
@@ -33,7 +23,7 @@ def execute(argv: list[str], cwd: Path, timeout_s: float = 5.0) -> ExecResult:
         completed = subprocess.run(
             argv,
             cwd=cwd,
-            env=_build_env(),
+            env=hardened_env(),
             capture_output=True,
             text=True,
             timeout=timeout_s,
