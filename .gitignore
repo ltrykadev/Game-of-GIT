@@ -201,6 +201,9 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
+# Remember hook (session runtime artifacts, not project content)
+.remember/
+
 # Marimo
 marimo/_static/
 marimo/_lsp/
