@@ -1,6 +1,6 @@
 import subprocess
 
-from gameofgit.quests.level1 import INIT_REPO, STAGE_A_FILE
+from gameofgit.quests.level1 import FIRST_COMMIT, INIT_REPO, STAGE_A_FILE
 
 
 def test_init_repo_predicate_false_on_empty_dir(tmp_path):
@@ -61,3 +61,51 @@ def test_stage_a_file_seed_is_immune_to_ambient_git_dir(tmp_path, monkeypatch):
     STAGE_A_FILE.seed(sandbox)
     assert (sandbox / ".git").is_dir()
     assert not bogus.exists()
+
+
+def test_first_commit_seed_stages_a_file(tmp_path):
+    assert FIRST_COMMIT.seed is not None
+    FIRST_COMMIT.seed(tmp_path)
+    # After seed: repo exists, at least one file is staged.
+    r = subprocess.run(
+        ["git", "diff", "--cached", "--name-only"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert r.stdout.strip() != ""
+
+
+def test_first_commit_predicate_false_after_seed_only(tmp_path):
+    FIRST_COMMIT.seed(tmp_path)
+    r = FIRST_COMMIT.check(tmp_path)
+    assert r.passed is False
+    assert r.detail is not None
+    assert "HEAD" in r.detail
+
+
+def test_first_commit_predicate_true_after_commit(tmp_path):
+    FIRST_COMMIT.seed(tmp_path)
+    subprocess.run(
+        ["git", "commit", "-q", "-m", "initial commit"],
+        cwd=tmp_path,
+        check=True,
+    )
+    r = FIRST_COMMIT.check(tmp_path)
+    assert r.passed is True
+
+
+def test_first_commit_predicate_false_if_empty_commit(tmp_path):
+    # Edge case: a commit with no files (allow-empty) must not satisfy the quest.
+    FIRST_COMMIT.seed(tmp_path)
+    subprocess.run(["git", "reset"], cwd=tmp_path, check=True)  # unstage
+    subprocess.run(
+        ["git", "commit", "--allow-empty", "-q", "-m", "nothing"],
+        cwd=tmp_path,
+        check=True,
+    )
+    r = FIRST_COMMIT.check(tmp_path)
+    assert r.passed is False
+    assert r.detail is not None
+    assert "no files" in r.detail.lower()

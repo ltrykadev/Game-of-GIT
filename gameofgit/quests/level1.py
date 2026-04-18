@@ -95,3 +95,42 @@ STAGE_A_FILE = Quest(
     check=_check_stage_a_file,
     seed=_seed_initialized_repo,
 )
+
+
+def _seed_repo_with_staged_file(sandbox: Path) -> None:
+    _seed_initialized_repo(sandbox)
+    (sandbox / "README.md").write_text("hello\n")
+    _run(["git", "add", "README.md"], cwd=sandbox)
+
+
+def _check_first_commit(sandbox: Path) -> CheckResult:
+    head = subprocess.run(
+        ["git", "rev-parse", "--verify", "HEAD"],
+        cwd=sandbox,
+        env=_quest_subprocess_env(),
+        capture_output=True,
+        text=True,
+    )
+    if head.returncode != 0:
+        return CheckResult(False, "HEAD doesn't point at any commit yet.")
+    files = _run(["git", "ls-tree", "-r", "--name-only", "HEAD"], cwd=sandbox, capture=True)
+    if not files.stdout.strip():
+        return CheckResult(False, "You committed, but the commit contains no files.")
+    return CheckResult(True)
+
+
+FIRST_COMMIT = Quest(
+    slug="first-commit",
+    title="Record your first commit.",
+    brief=(
+        "Staging is a promise; committing keeps it. Turn your staged changes "
+        "into a permanent snapshot."
+    ),
+    hints=(
+        "A commit needs a message — without one, git will open an editor.",
+        '`git commit -m "your message here"` keeps it on one line.',
+    ),
+    allowed=_ALLOWED,
+    check=_check_first_commit,
+    seed=_seed_repo_with_staged_file,
+)
