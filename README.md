@@ -23,7 +23,9 @@ pip install -r requirements.txt
 python -m gameofgit
 ```
 
-Then open <http://127.0.0.1:8000>. Click **PLAY** to start.
+Then open <http://localhost:8000>. Click **PLAY** to start.
+
+The server binds to `0.0.0.0`, so it's also reachable from other machines on your network via `http://<your-lan-ip>:8000` — handy for playing from a phone or another laptop.
 
 ### How to play
 
