@@ -1,67 +1,61 @@
-import dataclasses
+from dataclasses import FrozenInstanceError
+from pathlib import Path
 
 import pytest
 
-from gameofgit.engine.quest import Quest, CheckResult
+from gameofgit.engine.quest import CheckResult, Quest
+
+
+def _always_pass(_: Path) -> CheckResult:
+    return CheckResult(passed=True)
 
 
 def test_check_result_defaults_to_no_detail():
-    r = CheckResult(True)
+    r = CheckResult(passed=True)
     assert r.passed is True
     assert r.detail is None
 
 
 def test_check_result_with_detail():
-    r = CheckResult(False, "not yet")
-    assert r.passed is False
-    assert r.detail == "not yet"
+    r = CheckResult(passed=False, detail="nope")
+    assert r.detail == "nope"
 
 
 def test_check_result_is_frozen():
-    r = CheckResult(True)
-    with pytest.raises(dataclasses.FrozenInstanceError):
+    r = CheckResult(passed=True)
+    with pytest.raises(FrozenInstanceError):
         r.passed = False  # type: ignore[misc]
-
-
-def _noop_check(_path):
-    return CheckResult(False)
 
 
 def test_quest_is_frozen():
     q = Quest(
-        slug="x",
-        title="t",
-        brief="b",
-        hints=(),
-        allowed=frozenset({"init"}),
-        check=_noop_check,
+        slug="demo",
+        title="Demo",
+        brief="a demo",
+        hints=("hint",),
+        allowed=frozenset({"status"}),
+        check=_always_pass,
     )
-    with pytest.raises(dataclasses.FrozenInstanceError):
-        q.slug = "y"  # type: ignore[misc]
+    with pytest.raises(FrozenInstanceError):
+        q.title = "Other"  # type: ignore[misc]
 
 
 def test_quest_seed_defaults_to_none():
     q = Quest(
-        slug="x",
-        title="t",
-        brief="b",
+        slug="demo",
+        title="Demo",
+        brief="a demo",
         hints=(),
-        allowed=frozenset({"init"}),
-        check=_noop_check,
+        allowed=frozenset(),
+        check=_always_pass,
     )
     assert q.seed is None
 
 
 def test_quest_is_hashable_via_slug():
-    # frozen dataclasses are hashable by default (all fields hash); a frozenset
-    # of quest slugs would be the natural way to dedupe quests. We don't assert
-    # equality semantics, only that __hash__ doesn't raise.
-    q = Quest(
-        slug="x",
-        title="t",
-        brief="b",
-        hints=(),
-        allowed=frozenset({"init"}),
-        check=_noop_check,
-    )
-    hash(q)
+    # frozen dataclass with hashable fields => hashable
+    q1 = Quest(slug="a", title="", brief="", hints=(), allowed=frozenset(), check=_always_pass)
+    q2 = Quest(slug="a", title="", brief="", hints=(), allowed=frozenset(), check=_always_pass)
+    # same field values -> equal and hashable
+    assert q1 == q2
+    assert hash(q1) == hash(q2)
