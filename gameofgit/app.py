@@ -13,8 +13,8 @@ from gameofgit.widgets.quest_pane import QuestPane
 from gameofgit.widgets.shell import CommandChanged, CommandSubmitted, ShellPane
 
 _INSTRUCTIONS = (
-    "Bindings: Enter submits, h reveals next hint, "
-    "n advances after a quest passes, Ctrl+Q quits."
+    "Type a git command and press Enter. "
+    "Type ? for a hint. Quests advance automatically. Ctrl+Q quits."
 )
 
 _CSS_PATH = Path(__file__).parent / "ui.tcss"
@@ -28,8 +28,6 @@ class GameOfGitApp(App):
 
     BINDINGS = [
         Binding("ctrl+q", "quit", "Quit", show=True),
-        Binding("h", "hint", "Hint", show=True),
-        Binding("n", "next_quest", "Next", show=True),
     ]
 
     def __init__(self) -> None:
@@ -66,12 +64,17 @@ class GameOfGitApp(App):
         else:
             shell.set_suggestion("")
 
-    def on_command_submitted(self, event: CommandSubmitted) -> None:
+    async def on_command_submitted(self, event: CommandSubmitted) -> None:
         shell = self.query_one(ShellPane)
         quest_pane = self.query_one(QuestPane)
 
         cmdline = event.cmdline
         shell.echo(cmdline)
+
+        # '?' is a typed help command — reveal the next hint, skip the engine.
+        if cmdline.strip() == "?":
+            quest_pane.reveal_next_hint()
+            return
 
         prev_passed = self._quest_passed
         outcome = self._session.run(cmdline)
@@ -85,42 +88,30 @@ class GameOfGitApp(App):
         quest_pane.set_check(current_check)
         self._quest_passed = current_check.passed
 
-        # Show success marker the first time the quest passes
         if current_check.passed and not prev_passed:
             shell.write_info("Quest passed!")
             if self._quest_index < len(_QUESTS) - 1:
-                quest_pane.show_advance_prompt()
+                await self._advance_to_next_quest()
             else:
                 quest_pane.show_level_complete()
 
     # ------------------------------------------------------------------
-    # Key binding actions
+    # Helpers
     # ------------------------------------------------------------------
 
-    def action_hint(self) -> None:
-        self.query_one(QuestPane).reveal_next_hint()
-
-    def action_next_quest(self) -> None:
-        if not self._quest_passed:
-            return
-        if self._quest_index >= len(_QUESTS) - 1:
-            return
-
-        # Tear down old session
+    async def _advance_to_next_quest(self) -> None:
         self._session.close()
-
         self._quest_index += 1
         quest = _QUESTS[self._quest_index]
         self._session = QuestSession(quest)
         self._quest_passed = self._session._last_check.passed
 
-        # Replace quest pane
         old_pane = self.query_one(QuestPane)
+        await old_pane.remove()
         new_pane = QuestPane(
             quest,
             self._quest_index,
             len(_QUESTS),
             id="quest-pane",
         )
-        old_pane.remove()
         self.query_one("#panes", Horizontal).mount(new_pane)

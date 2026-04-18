@@ -51,16 +51,6 @@ class QuestPane(Widget):
         text = "\n".join(f"Hint {i + 1}: {h}" for i, h in enumerate(revealed))
         self.query_one("#quest-hints", Label).update(text)
 
-    def show_advance_prompt(self) -> None:
-        """Show the 'press n for next quest' prompt."""
-        self.query_one("#quest-advance", Label).update(
-            "[bold yellow]Quest complete! Press [n] for the next quest.[/bold yellow]"
-        )
-
-    def hide_advance_prompt(self) -> None:
-        """Hide the advance prompt (e.g. when advancing)."""
-        self.query_one("#quest-advance", Label).update("")
-
     def show_level_complete(self) -> None:
         """Replace advance prompt with level-complete message."""
         self.query_one("#quest-advance", Label).update(

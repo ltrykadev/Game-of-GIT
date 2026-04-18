@@ -16,15 +16,30 @@ async def test_app_launches_with_first_quest():
 
 
 @pytest.mark.asyncio
-async def test_typing_git_init_completes_first_quest():
-    """Typing 'git init' in the shell and pressing Enter passes the first quest."""
+async def test_typing_git_init_auto_advances_to_next_quest():
+    """Completing a quest auto-advances to the next quest's session."""
     app = GameOfGitApp()
     async with app.run_test() as pilot:
-        # Type each character; space becomes the 'space' key name
+        assert app._quest_index == 0
         await pilot.press("g", "i", "t", "space", "i", "n", "i", "t")
         await pilot.press("enter")
         await pilot.pause()
-        assert app._session._last_check.passed is True
+        # First quest passed → auto-advance → now on quest index 1
+        assert app._quest_index == 1
+
+
+@pytest.mark.asyncio
+async def test_question_mark_reveals_hint():
+    """Typing '?' and pressing Enter reveals the next hint without touching the engine."""
+    app = GameOfGitApp()
+    async with app.run_test() as pilot:
+        quest_pane = app.query_one(QuestPane)
+        assert quest_pane._hints_revealed == 0
+        input_widget = app.query_one("#shell-input")
+        input_widget.value = "?"
+        await pilot.press("enter")
+        await pilot.pause()
+        assert quest_pane._hints_revealed == 1
 
 
 @pytest.mark.asyncio
