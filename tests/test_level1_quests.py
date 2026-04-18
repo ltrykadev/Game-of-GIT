@@ -1,6 +1,6 @@
 import subprocess
 
-from gameofgit.quests.level1 import FIRST_COMMIT, INIT_REPO, STAGE_A_FILE
+from gameofgit.quests.level1 import FIRST_COMMIT, INIT_REPO, MEANINGFUL_MESSAGE, STAGE_A_FILE
 
 
 def test_init_repo_predicate_false_on_empty_dir(tmp_path):
@@ -109,3 +109,52 @@ def test_first_commit_predicate_false_if_empty_commit(tmp_path):
     assert r.passed is False
     assert r.detail is not None
     assert "no files" in r.detail.lower()
+
+
+def test_meaningful_message_seed_has_one_commit(tmp_path):
+    assert MEANINGFUL_MESSAGE.seed is not None
+    MEANINGFUL_MESSAGE.seed(tmp_path)
+    count = subprocess.run(
+        ["git", "rev-list", "--count", "HEAD"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert count.stdout.strip() == "1"
+
+
+def test_meaningful_message_predicate_false_after_seed_only(tmp_path):
+    MEANINGFUL_MESSAGE.seed(tmp_path)
+    r = MEANINGFUL_MESSAGE.check(tmp_path)
+    assert r.passed is False
+    assert r.detail is not None
+    assert "new commit" in r.detail.lower()
+
+
+def test_meaningful_message_predicate_false_with_short_new_message(tmp_path):
+    MEANINGFUL_MESSAGE.seed(tmp_path)
+    (tmp_path / "new.txt").write_text("new\n")
+    subprocess.run(["git", "add", "new.txt"], cwd=tmp_path, check=True)
+    subprocess.run(
+        ["git", "commit", "-q", "-m", "fix"],  # 3 chars, < 10
+        cwd=tmp_path,
+        check=True,
+    )
+    r = MEANINGFUL_MESSAGE.check(tmp_path)
+    assert r.passed is False
+    assert r.detail is not None
+    assert "3 chars" in r.detail
+
+
+def test_meaningful_message_predicate_true_with_long_new_message(tmp_path):
+    MEANINGFUL_MESSAGE.seed(tmp_path)
+    (tmp_path / "new.txt").write_text("new\n")
+    subprocess.run(["git", "add", "new.txt"], cwd=tmp_path, check=True)
+    subprocess.run(
+        ["git", "commit", "-q", "-m", "Add greeting to new file"],
+        cwd=tmp_path,
+        check=True,
+    )
+    r = MEANINGFUL_MESSAGE.check(tmp_path)
+    assert r.passed is True

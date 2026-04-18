@@ -134,3 +134,49 @@ FIRST_COMMIT = Quest(
     check=_check_first_commit,
     seed=_seed_repo_with_staged_file,
 )
+
+
+def _seed_repo_with_initial_commit(sandbox: Path) -> None:
+    _seed_repo_with_staged_file(sandbox)
+    _run(["git", "commit", "-q", "-m", "initial"], cwd=sandbox)
+
+
+def _check_meaningful_message(sandbox: Path) -> CheckResult:
+    count = subprocess.run(
+        ["git", "rev-list", "--count", "HEAD"],
+        cwd=sandbox,
+        env=_quest_subprocess_env(),
+        capture_output=True,
+        text=True,
+    )
+    if count.returncode != 0 or int(count.stdout.strip() or 0) < 2:
+        return CheckResult(False, "Make a new commit on top of the starting one.")
+    msg = _run(
+        ["git", "log", "-1", "--pretty=%s", "HEAD"],
+        cwd=sandbox,
+        capture=True,
+    ).stdout.strip()
+    if len(msg) < 10:
+        return CheckResult(
+            False,
+            f"Your message is {len(msg)} chars — try for at least 10.",
+        )
+    return CheckResult(True)
+
+
+MEANINGFUL_MESSAGE = Quest(
+    slug="meaningful-message",
+    title="Write a commit message that future-you will thank you for.",
+    brief=(
+        "A commit message is a note to the next person who reads this code — "
+        "often yourself, six months from now. Make a new change, commit it, "
+        "and give it a message at least 10 characters long."
+    ),
+    hints=(
+        "`Fix` or `update` on their own don't tell anyone what changed.",
+        "Aim for something like `Add greeting to README`.",
+    ),
+    allowed=_ALLOWED,
+    check=_check_meaningful_message,
+    seed=_seed_repo_with_initial_commit,
+)
