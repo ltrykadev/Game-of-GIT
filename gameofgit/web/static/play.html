@@ -1,4 +1,89 @@
 <!DOCTYPE html>
-<html><head><title>Game of GIT - placeholder</title></head>
-<body><h1>Game of GIT</h1><script type="module" src="/static/app.js"></script></body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game of GIT — Play</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="game-page">
+
+    <!-- ===================== HEADER BAR ===================== -->
+    <header class="game-header">
+        <a href="/" class="mini-logo">GAME OF GIT</a>
+        <span class="progress-indicator" id="progress">Quest 1 of 4</span>
+    </header>
+
+    <!-- ===================== MAIN TWO-COLUMN AREA ===================== -->
+    <div class="game-main">
+
+        <!-- LEFT: SHELL PANE (60%) -->
+        <section class="shell-pane" aria-label="Shell">
+            <!-- Scrollback log -->
+            <div class="shell-log" id="shell-log" role="log" aria-live="polite"></div>
+
+            <!-- Typo suggestion line -->
+            <div class="suggestion-bar hidden" id="suggestion-bar">
+                Did you mean: <strong id="suggestion-text"></strong>
+            </div>
+
+            <!-- Prompt input row -->
+            <div class="prompt-row">
+                <span class="prompt-dollar" aria-hidden="true">$</span>
+                <input
+                    type="text"
+                    class="prompt-input"
+                    id="shell-input"
+                    placeholder="type a git command…"
+                    autocomplete="off"
+                    autocorrect="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                    aria-label="Command input"
+                />
+            </div>
+        </section>
+
+        <!-- RIGHT: QUEST PANE (40%) -->
+        <section class="quest-pane" aria-label="Quest">
+            <!-- Quest title -->
+            <h1 class="quest-title" id="quest-title">Loading…</h1>
+
+            <!-- Quest brief -->
+            <p class="quest-brief" id="quest-brief"></p>
+
+            <!-- Allowed commands -->
+            <div class="allowed-label">Available Commands</div>
+            <div class="allowed-pills" id="allowed-pills"></div>
+
+            <!-- Hints -->
+            <div class="hints-section">
+                <div class="hints-label">Hints</div>
+                <button class="hint-btn" id="hint-btn" type="button">
+                    &#9670; Show next hint
+                </button>
+                <ol class="hint-list" id="hint-list"></ol>
+            </div>
+
+            <!-- Status -->
+            <div class="quest-status">
+                <span class="status-label in-progress" id="status-label">IN PROGRESS</span>
+                <p class="status-detail" id="status-detail"></p>
+            </div>
+        </section>
+    </div>
+
+    <!-- ===================== LEVEL-COMPLETE OVERLAY ===================== -->
+    <div class="level-complete-overlay hidden" id="level-complete-overlay" role="dialog" aria-modal="true" aria-label="Level complete">
+        <h2 class="level-complete-title">Level Complete!</h2>
+        <p class="level-complete-sub">
+            The realm remembers your valor. You have mastered the foundations
+            of the sacred art of <em>git</em>.
+        </p>
+        <a href="/" class="level-complete-btn">Return to the Keep</a>
+    </div>
+
+    <script type="module" src="/static/app.js"></script>
+</body>
 </html>
