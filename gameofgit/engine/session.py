@@ -3,9 +3,8 @@ from pathlib import Path
 
 from .executor import execute
 from .parser import (
-    DisallowedSubcommand,
     EmptyCommand,
-    NotAGitCommand,
+    EngineError,
     parse,
 )
 from .quest import CheckResult, Quest
@@ -39,17 +38,10 @@ class QuestSession:
             argv = parse(cmdline, self._quest.allowed)
         except EmptyCommand:
             return Outcome("", "", 0, self._last_check)
-        except NotAGitCommand as e:
+        except EngineError as e:
             return Outcome(
                 stdout="",
-                stderr=f"{e.argv0}: command not available in this quest",
-                exit_code=127,
-                check=self._last_check,
-            )
-        except DisallowedSubcommand as e:
-            return Outcome(
-                stdout="",
-                stderr=f"git: '{e.sub}' is not available in this level yet",
+                stderr=str(e),
                 exit_code=127,
                 check=self._last_check,
             )

@@ -158,3 +158,27 @@ def test_session_close_is_idempotent():
     s = QuestSession(q)
     s.close()
     s.close()  # second call must not raise
+
+
+def test_session_malformed_command_returns_127_and_reuses_check():
+    calls = {"n": 0}
+
+    def check(_):
+        calls["n"] += 1
+        return CheckResult(False, "not done")
+
+    q = Quest(
+        slug="x",
+        title="x",
+        brief="x",
+        hints=(),
+        allowed=frozenset({"status"}),
+        check=check,
+        seed=None,
+    )
+    with QuestSession(q) as s:
+        before = calls["n"]
+        out = s.run('git commit -m "unterminated')
+        assert out.exit_code == 127
+        assert calls["n"] == before  # check NOT re-run
+        assert out.check.passed is False

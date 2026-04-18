@@ -4,6 +4,7 @@ from gameofgit.engine.parser import (
     DisallowedSubcommand,
     EmptyCommand,
     EngineError,
+    MalformedCommand,
     NotAGitCommand,
     parse,
 )
@@ -58,3 +59,9 @@ def test_all_engine_errors_share_base():
     assert issubclass(EmptyCommand, EngineError)
     assert issubclass(NotAGitCommand, EngineError)
     assert issubclass(DisallowedSubcommand, EngineError)
+    assert issubclass(MalformedCommand, EngineError)
+
+
+def test_parse_rejects_unclosed_quote():
+    with pytest.raises(MalformedCommand):
+        parse('git commit -m "unterminated', frozenset({"commit"}))
