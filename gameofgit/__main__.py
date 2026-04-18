@@ -1,6 +1,16 @@
-"""Entry point: python -m gameofgit"""
+"""Game of GIT entry point: launch the web UI."""
 
-from gameofgit.app import GameOfGitApp
+import uvicorn
+
+
+def main() -> None:
+    uvicorn.run(
+        "gameofgit.web.server:app",
+        host="127.0.0.1",
+        port=8000,
+        reload=False,
+    )
+
 
 if __name__ == "__main__":
-    GameOfGitApp().run()
+    main()
