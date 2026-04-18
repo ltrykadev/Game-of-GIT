@@ -1,5 +1,6 @@
 import subprocess
 
+from gameofgit.quests import all_quests
 from gameofgit.quests.level1 import FIRST_COMMIT, INIT_REPO, MEANINGFUL_MESSAGE, STAGE_A_FILE
 
 
@@ -158,3 +159,25 @@ def test_meaningful_message_predicate_true_with_long_new_message(tmp_path):
     )
     r = MEANINGFUL_MESSAGE.check(tmp_path)
     assert r.passed is True
+
+
+def test_all_quests_returns_all_level1_quests():
+    quests = list(all_quests())
+    slugs = {q.slug for q in quests}
+    assert slugs == {
+        "init-repo",
+        "stage-a-file",
+        "first-commit",
+        "meaningful-message",
+    }
+
+
+def test_all_quests_preserves_level_order():
+    # The return order determines the intended progression through the level.
+    slugs = [q.slug for q in all_quests()]
+    assert slugs == [
+        "init-repo",
+        "stage-a-file",
+        "first-commit",
+        "meaningful-message",
+    ]
