@@ -18,6 +18,8 @@ let currentQuest = null;
 // True while we're waiting for the user to confirm a `/exit`. Next Enter
 // decides: "yes"/"y" leaves, anything else cancels.
 let pendingExit = false;
+let currentPlayer = null;
+let previousTier = null;
 
 // ---------------------------------------------------------------------------
 // API helpers
@@ -35,7 +37,15 @@ async function apiFetch(path, opts) {
 }
 
 async function createGame() {
-    return apiFetch("/api/game", { method: "POST" });
+    var slug = localStorage.getItem("gog.playerSlug");
+    if (!slug) {
+        window.location.href = "/";
+        return null;
+    }
+    return apiFetch("/api/game", {
+        method: "POST",
+        body: JSON.stringify({ player_slug: slug }),
+    });
 }
 
 async function runCommand(cmdline) {
@@ -102,23 +112,13 @@ function clearLog() {
     clearChildren(getEl("shell-log"));
 }
 
-/**
- * Render the quest state into the quest pane.
- * @param {object} quest — QuestView JSON from the API
- */
 function renderQuest(quest) {
     currentQuest = quest;
-    // Title
     getEl("quest-title").textContent = quest.title;
-
-    // Brief
     getEl("quest-brief").textContent = quest.brief;
 
-    // Progress indicator
-    getEl("progress").textContent =
-        "Quest " + (quest.quest_index + 1) + " of " + quest.total;
+    renderProgress(quest);
 
-    // Allowed pills
     var pillsEl = getEl("allowed-pills");
     clearChildren(pillsEl);
     for (var i = 0; i < quest.allowed.length; i++) {
@@ -128,9 +128,40 @@ function renderQuest(quest) {
         pillsEl.appendChild(pill);
     }
 
-    // Hints + status
     renderHints(quest);
     renderStatus(quest);
+}
+
+function renderPlayer(player) {
+    currentPlayer = player;
+    if (previousTier === null) previousTier = player.tier;
+
+    getEl("tier-pill").textContent = player.tier;
+    getEl("xp-value").textContent = player.xp;
+
+    var fill = getEl("xp-bar-fill");
+    var pct;
+    if (player.xp_to_next_tier === null || player.xp_to_next_tier === 0) {
+        pct = 100;
+    } else {
+        var denom = player.xp + player.xp_to_next_tier;
+        pct = denom > 0 ? Math.round((player.xp / denom) * 100) : 0;
+    }
+    fill.style.width = pct + "%";
+}
+
+function renderProgress(quest) {
+    getEl("progress").textContent =
+        "Level " + quest.level + " · Quest " +
+        (quest.quest_index + 1) + " of " + quest.total;
+}
+
+function showTierUpToast(newTier) {
+    var toast = document.createElement("div");
+    toast.className = "tier-toast";
+    toast.textContent = "You have risen to " + newTier + ".";
+    document.body.appendChild(toast);
+    setTimeout(function() { toast.remove(); }, 2000);
 }
 
 function renderHints(quest) {
@@ -291,6 +322,18 @@ async function handleEnter(input) {
 
         renderQuest(body.quest);
 
+        if (body.player) {
+            var oldTier = previousTier;
+            renderPlayer(body.player);
+            if (body.xp_awarded && body.xp_awarded > 0) {
+                appendLog("+" + body.xp_awarded + " XP earned. Onward.", "log-info");
+            }
+            if (body.player.tier !== oldTier) {
+                showTierUpToast(body.player.tier);
+                previousTier = body.player.tier;
+            }
+        }
+
         if (body.advanced) {
             appendLog("Quest passed! The next quest awaits.", "log-info");
         }
@@ -346,6 +389,9 @@ async function init() {
     appendLog("", "log-stdout");
 
     renderQuest(gameData.quest);
+    if (gameData.player) {
+        renderPlayer(gameData.player);
+    }
 
     var input = getEl("shell-input");
     input.focus();

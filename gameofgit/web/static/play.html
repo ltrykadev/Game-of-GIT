@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game of GIT: The Tears of DevSecOps — Play</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css?v=3">
+    <link rel="stylesheet" href="/static/style.css?v=4">
 </head>
 <body class="game-page">
 
@@ -15,7 +15,12 @@
     <!-- ===================== HEADER BAR ===================== -->
     <header class="game-header">
         <a href="/" class="mini-logo">GAME OF GIT</a>
-        <span class="progress-indicator" id="progress">Quest 1 of 4</span>
+        <div class="status-bar" id="status-bar">
+            <span class="tier-pill" id="tier-pill">Junior</span>
+            <span class="xp-label"><span id="xp-value">0</span> XP</span>
+            <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xp-bar-fill"></div></div>
+        </div>
+        <span class="progress-indicator" id="progress">Level 1 · Quest 1 of 4</span>
     </header>
 
     <!-- ===================== MAIN TWO-COLUMN AREA ===================== -->
@@ -89,6 +94,6 @@
         <a href="/" class="level-complete-btn">Return to the Keep</a>
     </div>
 
-    <script type="module" src="/static/app.js?v=3"></script>
+    <script type="module" src="/static/app.js?v=4"></script>
 </body>
 </html>
