@@ -896,3 +896,48 @@ code {
     border-radius: 3px;
     border: 1px solid rgba(255, 179, 71, 0.2);
 }
+
+/* ---------------------------------------------------------------------------
+   Play gate — name input on home page
+   -------------------------------------------------------------------------- */
+.play-gate {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+}
+.name-label {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    color: #d4af37;
+}
+.name-input {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    color: #f4d77e;
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    padding: 0.6rem 1rem;
+    width: min(360px, 80vw);
+    text-align: center;
+    border-radius: 2px;
+    outline: none;
+}
+.name-input:focus {
+    border-color: rgba(212, 175, 55, 0.95);
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+}
+.play-btn[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: grayscale(0.6);
+}
+.play-greeting {
+    font-family: var(--font-body);
+    font-style: italic;
+    color: #f4d77e;
+    margin-top: 0.4rem;
+}
+.hidden { display: none !important; }
