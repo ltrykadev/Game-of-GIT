@@ -23,6 +23,15 @@ def _play_through(session: QuestSession, slug: str) -> None:
         (sandbox / "new.txt").write_text("new content\n")
         session.run("git add new.txt")
         session.run('git commit -m "Add greeting to new file"')
+    elif slug == "read-the-log":
+        session.run("git log")
+    elif slug == "spot-the-diff":
+        session.run("git diff")
+    elif slug == "inspect-a-commit":
+        # Pick the parent of HEAD (an older commit) and `git show` it.
+        out = session.run("git log --pretty=%H -n 2")
+        sha = out.stdout.splitlines()[-1]
+        session.run(f"git show {sha}")
     else:
         raise AssertionError(f"no playthrough defined for slug: {slug}")
 

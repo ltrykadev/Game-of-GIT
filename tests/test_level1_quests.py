@@ -165,7 +165,7 @@ def test_meaningful_message_predicate_true_with_long_new_message(tmp_path):
 
 
 def test_all_quests_returns_all_level1_quests():
-    quests = list(all_quests())
+    quests = [q for q in all_quests() if q.level == 1]
     slugs = {q.slug for q in quests}
     assert slugs == {
         "init-repo",
@@ -177,7 +177,7 @@ def test_all_quests_returns_all_level1_quests():
 
 def test_all_quests_preserves_level_order():
     # The return order determines the intended progression through the level.
-    slugs = [q.slug for q in all_quests()]
+    slugs = [q.slug for q in all_quests() if q.level == 1]
     assert slugs == [
         "init-repo",
         "stage-a-file",
