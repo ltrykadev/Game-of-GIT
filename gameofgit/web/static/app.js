@@ -20,6 +20,7 @@ let currentQuest = null;
 let pendingExit = false;
 let currentPlayer = null;
 let previousTier = null;
+let sessionXpStart = 0;
 
 // ---------------------------------------------------------------------------
 // API helpers
@@ -205,26 +206,27 @@ function showSuggestion(text) {
 }
 
 function showLevelComplete() {
-    getEl("level-complete-overlay").classList.remove("hidden");
+    var overlay = getEl("level-complete-overlay");
+    var xpLine = getEl("level-complete-xp");
+    if (currentPlayer) {
+        var earned = currentPlayer.xp - sessionXpStart;
+        xpLine.textContent =
+            "+ " + earned + " XP earned this session  \u00b7  Tier: " + currentPlayer.tier;
+    } else {
+        xpLine.textContent = "";
+    }
+    overlay.classList.remove("hidden");
 }
 
 // ---------------------------------------------------------------------------
 // /exit flow — progress summary + farewell, then return to the Keep
 // ---------------------------------------------------------------------------
 
-/**
- * Print a final scoreboard + GoT-style valediction scaled to how far the
- * player got, then close the session and redirect home after a short pause.
- * Reads progress from `currentQuest` (cached in renderQuest) — no round-trip.
- */
 function showExitSummary() {
     var completed = 0;
     var total = 0;
     var hintsUsed = 0;
     if (currentQuest) {
-        // A passing check on the current quest counts as "completed" even if
-        // the server hasn't advanced yet (only the final quest stays in place
-        // after passing — everything else advances).
         completed = currentQuest.quest_index + (currentQuest.check_passed ? 1 : 0);
         total = currentQuest.total;
         hintsUsed = currentQuest.hints_revealed ? currentQuest.hints_revealed.length : 0;
@@ -235,11 +237,26 @@ function showExitSummary() {
     appendLog(rule, "log-info");
     appendLog("  Farewell, brave soul.", "log-info");
     appendLog(rule, "log-info");
+
+    if (currentPlayer) {
+        appendLog("  Tier             : " + currentPlayer.tier + " \u2694", "log-info");
+        appendLog(
+            "  Total XP         : " + currentPlayer.xp + " / " +
+            (currentPlayer.xp + (currentPlayer.xp_to_next_tier || 0)) +
+            (currentPlayer.tier === "Expert" ? " (Master of the Realm)" : ""),
+            "log-info"
+        );
+    }
     appendLog("  Quests completed : " + completed + " of " + total, "log-info");
+    if (currentPlayer && currentPlayer.xp_to_next_tier !== null && currentPlayer.tier !== "Expert") {
+        var nextTier = currentPlayer.tier === "Junior" ? "Senior" : "Expert";
+        appendLog("  " + currentPlayer.xp_to_next_tier + " XP from " + nextTier, "log-info");
+    } else if (currentPlayer && currentPlayer.tier === "Expert") {
+        appendLog("  The title of Expert is yours.", "log-info");
+    }
     appendLog("  Hints revealed   : " + hintsUsed, "log-info");
     appendLog("", "log-stdout");
 
-    // Scale the congratulation to how far they got.
     var msg;
     if (total > 0 && completed >= total) {
         msg = "You have mastered this level. The realm sings your name.";
@@ -254,12 +271,10 @@ function showExitSummary() {
     appendLog("", "log-stdout");
     appendLog("  Returning to the Keep\u2026", "log-info");
 
-    // Disable input so stray keystrokes can't queue up during redirect.
     var input = getEl("shell-input");
     input.disabled = true;
     input.placeholder = "game ended";
 
-    // Free the sandbox server-side, then go home.
     closeGame();
     setTimeout(function() { window.location.href = "/"; }, 2500);
 }
@@ -391,6 +406,7 @@ async function init() {
     renderQuest(gameData.quest);
     if (gameData.player) {
         renderPlayer(gameData.player);
+        sessionXpStart = gameData.player.xp;
     }
 
     var input = getEl("shell-input");
