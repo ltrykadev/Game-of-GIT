@@ -2,7 +2,7 @@ import subprocess
 from pathlib import Path
 
 from gameofgit.engine.env import hardened_env
-from gameofgit.engine.quest import CheckResult, Quest
+from gameofgit.engine.quest import CheckResult, Quest, SessionState
 
 _ALLOWED = frozenset({"init", "status", "add", "commit"})
 
@@ -19,7 +19,7 @@ def _run(args: list[str], cwd: Path, capture: bool = False) -> subprocess.Comple
     )
 
 
-def _check_init_repo(sandbox: Path) -> CheckResult:
+def _check_init_repo(sandbox: Path, _state: SessionState) -> CheckResult:
     if (sandbox / ".git").is_dir():
         return CheckResult(True)
     return CheckResult(
@@ -41,6 +41,8 @@ INIT_REPO = Quest(
     ),
     allowed=_ALLOWED,
     check=_check_init_repo,
+    xp=50,
+    level=1,
     seed=None,
 )
 
@@ -59,7 +61,7 @@ def _seed_initialized_repo(sandbox: Path) -> None:
     _run(["git", "config", "user.name", "Player"], cwd=sandbox)
 
 
-def _check_stage_a_file(sandbox: Path) -> CheckResult:
+def _check_stage_a_file(sandbox: Path, _state: SessionState) -> CheckResult:
     result = _run(["git", "diff", "--cached", "--name-only"], cwd=sandbox, capture=True)
     if result.stdout.strip():
         return CheckResult(True)
@@ -82,6 +84,8 @@ STAGE_A_FILE = Quest(
     ),
     allowed=_ALLOWED,
     check=_check_stage_a_file,
+    xp=50,
+    level=1,
     seed=_seed_initialized_repo,
 )
 
@@ -92,7 +96,7 @@ def _seed_repo_with_staged_file(sandbox: Path) -> None:
     _run(["git", "add", "README.md"], cwd=sandbox)
 
 
-def _check_first_commit(sandbox: Path) -> CheckResult:
+def _check_first_commit(sandbox: Path, _state: SessionState) -> CheckResult:
     head = subprocess.run(
         ["git", "rev-parse", "--verify", "HEAD"],
         cwd=sandbox,
@@ -121,6 +125,8 @@ FIRST_COMMIT = Quest(
     ),
     allowed=_ALLOWED,
     check=_check_first_commit,
+    xp=75,
+    level=1,
     seed=_seed_repo_with_staged_file,
 )
 
@@ -130,7 +136,7 @@ def _seed_repo_with_initial_commit(sandbox: Path) -> None:
     _run(["git", "commit", "-q", "-m", "initial"], cwd=sandbox)
 
 
-def _check_meaningful_message(sandbox: Path) -> CheckResult:
+def _check_meaningful_message(sandbox: Path, _state: SessionState) -> CheckResult:
     count = subprocess.run(
         ["git", "rev-list", "--count", "HEAD"],
         cwd=sandbox,
@@ -167,5 +173,7 @@ MEANINGFUL_MESSAGE = Quest(
     ),
     allowed=_ALLOWED,
     check=_check_meaningful_message,
+    xp=75,
+    level=1,
     seed=_seed_repo_with_initial_commit,
 )

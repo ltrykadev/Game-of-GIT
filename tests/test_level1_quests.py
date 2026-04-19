@@ -1,11 +1,14 @@
 import subprocess
 
+from gameofgit.engine.quest import SessionState
 from gameofgit.quests import all_quests
 from gameofgit.quests.level1 import FIRST_COMMIT, INIT_REPO, MEANINGFUL_MESSAGE, STAGE_A_FILE
 
+_STATE = SessionState(last_argv=None, all_argv=[])
+
 
 def test_init_repo_predicate_false_on_empty_dir(tmp_path):
-    r = INIT_REPO.check(tmp_path)
+    r = INIT_REPO.check(tmp_path, _STATE)
     assert r.passed is False
     assert r.detail is not None
     assert ".git" in r.detail
@@ -13,7 +16,7 @@ def test_init_repo_predicate_false_on_empty_dir(tmp_path):
 
 def test_init_repo_predicate_true_after_git_init(tmp_path):
     subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
-    r = INIT_REPO.check(tmp_path)
+    r = INIT_REPO.check(tmp_path, _STATE)
     assert r.passed is True
     assert r.detail is None
 
@@ -33,7 +36,7 @@ def test_stage_a_file_seed_initializes_repo(tmp_path):
 
 def test_stage_a_file_predicate_false_after_seed_only(tmp_path):
     STAGE_A_FILE.seed(tmp_path)
-    r = STAGE_A_FILE.check(tmp_path)
+    r = STAGE_A_FILE.check(tmp_path, _STATE)
     assert r.passed is False
     assert r.detail is not None
     assert "staged" in r.detail.lower()
@@ -43,7 +46,7 @@ def test_stage_a_file_predicate_true_after_add(tmp_path):
     STAGE_A_FILE.seed(tmp_path)
     (tmp_path / "README.md").write_text("hello\n")
     subprocess.run(["git", "add", "README.md"], cwd=tmp_path, check=True)
-    r = STAGE_A_FILE.check(tmp_path)
+    r = STAGE_A_FILE.check(tmp_path, _STATE)
     assert r.passed is True
 
 
@@ -80,7 +83,7 @@ def test_first_commit_seed_stages_a_file(tmp_path):
 
 def test_first_commit_predicate_false_after_seed_only(tmp_path):
     FIRST_COMMIT.seed(tmp_path)
-    r = FIRST_COMMIT.check(tmp_path)
+    r = FIRST_COMMIT.check(tmp_path, _STATE)
     assert r.passed is False
     assert r.detail is not None
     assert "HEAD" in r.detail
@@ -93,7 +96,7 @@ def test_first_commit_predicate_true_after_commit(tmp_path):
         cwd=tmp_path,
         check=True,
     )
-    r = FIRST_COMMIT.check(tmp_path)
+    r = FIRST_COMMIT.check(tmp_path, _STATE)
     assert r.passed is True
 
 
@@ -106,7 +109,7 @@ def test_first_commit_predicate_false_if_empty_commit(tmp_path):
         cwd=tmp_path,
         check=True,
     )
-    r = FIRST_COMMIT.check(tmp_path)
+    r = FIRST_COMMIT.check(tmp_path, _STATE)
     assert r.passed is False
     assert r.detail is not None
     assert "no files" in r.detail.lower()
@@ -127,7 +130,7 @@ def test_meaningful_message_seed_has_one_commit(tmp_path):
 
 def test_meaningful_message_predicate_false_after_seed_only(tmp_path):
     MEANINGFUL_MESSAGE.seed(tmp_path)
-    r = MEANINGFUL_MESSAGE.check(tmp_path)
+    r = MEANINGFUL_MESSAGE.check(tmp_path, _STATE)
     assert r.passed is False
     assert r.detail is not None
     assert "new commit" in r.detail.lower()
@@ -142,7 +145,7 @@ def test_meaningful_message_predicate_false_with_short_new_message(tmp_path):
         cwd=tmp_path,
         check=True,
     )
-    r = MEANINGFUL_MESSAGE.check(tmp_path)
+    r = MEANINGFUL_MESSAGE.check(tmp_path, _STATE)
     assert r.passed is False
     assert r.detail is not None
     assert "3 chars" in r.detail
@@ -157,7 +160,7 @@ def test_meaningful_message_predicate_true_with_long_new_message(tmp_path):
         cwd=tmp_path,
         check=True,
     )
-    r = MEANINGFUL_MESSAGE.check(tmp_path)
+    r = MEANINGFUL_MESSAGE.check(tmp_path, _STATE)
     assert r.passed is True
 
 
