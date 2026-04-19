@@ -2,6 +2,7 @@ from pathlib import Path
 
 from gameofgit.engine.quest import Quest
 from gameofgit.engine.session import QuestSession
+from gameofgit.quests._helpers import run_git
 
 
 def _play_through(session: QuestSession, slug: str) -> None:
@@ -63,6 +64,16 @@ def _play_through(session: QuestSession, slug: str) -> None:
         session.run("git fetch origin")
     elif slug == "push-your-work":
         session.run("git push origin main")
+    elif slug == "unstage-a-file":
+        session.run("git restore --staged oath.txt")
+    elif slug == "undo-a-commit-keep-work":
+        session.run("git reset --soft HEAD~1")
+    elif slug == "revert-a-public-commit":
+        # Grab the middle (bad) SHA directly — not part of the quest flow we're testing.
+        bad_sha = run_git(
+            ["git", "log", "--pretty=%H"], cwd=sandbox, capture=True
+        ).stdout.splitlines()[1]
+        session.run(f"git revert --no-edit {bad_sha}")
     else:
         raise AssertionError(f"no playthrough defined for slug: {slug}")
 
