@@ -4,9 +4,11 @@ Thread-safety is not required — FastAPI runs single-process for this local gam
 """
 
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from gameofgit.engine import QuestSession
+from gameofgit.player.model import Player
+from gameofgit.player.store import load_or_create
 from gameofgit.quests import all_quests
 
 _QUESTS = list(all_quests())
@@ -17,6 +19,7 @@ class Game:
     id: str
     quest_index: int
     session: QuestSession
+    player: Player
     hints_revealed: int = 0
 
     @property
@@ -28,7 +31,6 @@ class Game:
         return self.quest_index >= len(_QUESTS) - 1
 
     def advance(self) -> None:
-        """Tear down current session, open a session for the next quest."""
         self.session.close()
         self.quest_index += 1
         self.session = QuestSession(self.quest)
@@ -41,10 +43,20 @@ class Game:
 _GAMES: dict[str, Game] = {}
 
 
-def new_game() -> Game:
+def new_game(player_slug: str) -> Game:
+    """Start a fresh game for the given player slug. Profile must already exist.
+
+    Raises `KeyError` if no profile file exists for the slug.
+    """
+    player = load_or_create(player_slug)  # slugify-by-name path; works because slug==slug
     gid = uuid.uuid4().hex
     quest = _QUESTS[0]
-    g = Game(id=gid, quest_index=0, session=QuestSession(quest))
+    g = Game(
+        id=gid,
+        quest_index=0,
+        session=QuestSession(quest),
+        player=player,
+    )
     _GAMES[gid] = g
     return g
 
