@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -24,6 +24,24 @@ app = FastAPI(title="Game of GIT")
 
 # Mount static assets (CSS, JS, etc.) — must be mounted before the catch-all routes.
 app.mount("/static", StaticFiles(directory=_STATIC_DIR), name="static")
+
+
+@app.middleware("http")
+async def _no_cache_assets(request: Request, call_next):
+    """Disable browser caching for HTML/JS/CSS so dev edits propagate.
+
+    Without this, a stale `app.js` cached in the browser will keep running
+    even after the file changes — symptom: newly added commands behave as
+    though they don't exist. Targets the game pages and /static/, not API
+    responses (which aren't cached anyway).
+    """
+    response = await call_next(request)
+    path = request.url.path
+    if path.startswith("/static/") or path in ("/", "/play"):
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
 
 
 # ---------------------------------------------------------------------------

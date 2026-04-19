@@ -23,6 +23,10 @@ pip install -r requirements.txt
 python -m gameofgit
 ```
 
+Once the venv is populated you can also just run `./run_me.sh` — a three-line
+launcher that calls `./venv/bin/python -m gameofgit` without asking you to
+activate the venv first.
+
 On startup the server prints the LAN URL(s) it's reachable on — something like:
 
 ```
@@ -38,6 +42,7 @@ Open that URL in a browser (on the same machine or on any phone / laptop on the 
 
 - Type any `git` command in the left pane and press **Enter**. Success is checked against the repo state, not the exact command.
 - Type `?` and press Enter to reveal a hint (one at a time).
+- Type `/exit` and confirm with `yes` to leave the realm — the shell prints a progress summary (quests completed, hints revealed) and a farewell, then returns you to the home page.
 - The shell suggests corrections as you type — typos and likely-wrong commands surface inline.
 - Mistakes are not punished. When a quest passes, the game auto-advances to the next one.
 

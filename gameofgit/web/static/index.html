@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game of GIT: The Tears of DevSecOps</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/style.css?v=3">
 </head>
 <body class="home-page">
 
@@ -15,31 +15,23 @@
             <svg class="logo-svg" viewBox="0 0 900 440" xmlns="http://www.w3.org/2000/svg"
                  aria-label="Game of GIT: The Tears of DevSecOps">
                 <defs>
-                    <!-- Fire gradient: gold → amber → deep crimson -->
-                    <linearGradient id="fireGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%"   stop-color="#ffe066"/>
-                        <stop offset="30%"  stop-color="#d4af37"/>
-                        <stop offset="65%"  stop-color="#c0392b"/>
-                        <stop offset="100%" stop-color="#6b0000"/>
+                    <!-- GoT-style embossed metal gradient (vertical: dark → bright → dark).
+                         Simulates directional light striking carved metal. Static, not animated. -->
+                    <linearGradient id="embossGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%"   stop-color="#6b4a0d"/>
+                        <stop offset="15%"  stop-color="#8b6914"/>
+                        <stop offset="35%"  stop-color="#d4af37"/>
+                        <stop offset="50%"  stop-color="#f4d77e"/>
+                        <stop offset="65%"  stop-color="#d4af37"/>
+                        <stop offset="85%"  stop-color="#6b4a0d"/>
+                        <stop offset="100%" stop-color="#3a2605"/>
                     </linearGradient>
 
-                    <!-- Animated gradient that shifts over time -->
-                    <linearGradient id="fireGradAnim" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%"   stop-color="#ffe066">
-                            <animate attributeName="stop-color"
-                                values="#ffe066;#ff9500;#d4af37;#ffe066"
-                                dur="3s" repeatCount="indefinite"/>
-                        </stop>
-                        <stop offset="50%"  stop-color="#d4af37">
-                            <animate attributeName="stop-color"
-                                values="#d4af37;#8b0000;#ff6600;#d4af37"
-                                dur="3s" repeatCount="indefinite"/>
-                        </stop>
-                        <stop offset="100%" stop-color="#6b0000">
-                            <animate attributeName="stop-color"
-                                values="#6b0000;#3d0000;#8b0000;#6b0000"
-                                dur="3s" repeatCount="indefinite"/>
-                        </stop>
+                    <!-- Fire gradient for decorative rules only -->
+                    <linearGradient id="fireGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%"   stop-color="rgba(212,175,55,0)"/>
+                        <stop offset="50%"  stop-color="#d4af37"/>
+                        <stop offset="100%" stop-color="rgba(212,175,55,0)"/>
                     </linearGradient>
 
                     <!-- Steel gradient for the sword blade -->
@@ -50,46 +42,41 @@
                         <stop offset="100%" stop-color="#2a2a2e"/>
                     </linearGradient>
 
-                    <!-- Gold gradient for the crossguard and pommel -->
-                    <linearGradient id="goldHiltGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%"   stop-color="#ffe066"/>
-                        <stop offset="40%"  stop-color="#d4af37"/>
-                        <stop offset="100%" stop-color="#6b4a0d"/>
+                    <!-- Gold gradient for the crossguard and pommel (vertical emboss) -->
+                    <linearGradient id="goldHiltGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%"   stop-color="#f4d77e"/>
+                        <stop offset="45%"  stop-color="#d4af37"/>
+                        <stop offset="100%" stop-color="#4a3208"/>
                     </linearGradient>
 
-                    <!-- Gold sweep gradient for shimmer (moves across text) -->
+                    <!-- Gold sheen sweep — slow specular glint across the text -->
                     <linearGradient id="sheenGrad" x1="-50%" y1="0%" x2="50%" y2="0%">
-                        <stop offset="0%"   stop-color="rgba(255,224,102,0)"/>
-                        <stop offset="45%"  stop-color="rgba(255,224,102,0)"/>
-                        <stop offset="50%"  stop-color="rgba(255,255,220,0.85)"/>
-                        <stop offset="55%"  stop-color="rgba(255,224,102,0)"/>
-                        <stop offset="100%" stop-color="rgba(255,224,102,0)"/>
-                        <animate attributeName="x1" values="-50%;150%;-50%" dur="6s" repeatCount="indefinite"/>
-                        <animate attributeName="x2" values="50%;250%;50%"   dur="6s" repeatCount="indefinite"/>
+                        <stop offset="0%"   stop-color="rgba(255,255,220,0)"/>
+                        <stop offset="45%"  stop-color="rgba(255,255,220,0)"/>
+                        <stop offset="50%"  stop-color="rgba(255,255,240,0.7)"/>
+                        <stop offset="55%"  stop-color="rgba(255,255,220,0)"/>
+                        <stop offset="100%" stop-color="rgba(255,255,220,0)"/>
+                        <animate attributeName="x1" values="-50%;150%;-50%" dur="9s" repeatCount="indefinite"/>
+                        <animate attributeName="x2" values="50%;250%;50%"   dur="9s" repeatCount="indefinite"/>
                     </linearGradient>
 
-                    <!-- Heat-shimmer displacement filter -->
-                    <filter id="heatShimmer" x="-5%" y="-5%" width="110%" height="110%">
-                        <feTurbulence type="fractalNoise" baseFrequency="0.02 0.08"
-                            numOctaves="2" seed="5" result="noise">
-                            <animate attributeName="seed"
-                                values="5;8;12;6;5" dur="4s" repeatCount="indefinite"/>
-                        </feTurbulence>
-                        <feDisplacementMap in="SourceGraphic" in2="noise"
-                            scale="3" xChannelSelector="R" yChannelSelector="G"/>
-                    </filter>
+                    <!-- Firelit radial glow behind the logo group -->
+                    <radialGradient id="firelitBackdrop" cx="50%" cy="55%" r="60%">
+                        <stop offset="0%"  stop-color="rgba(139, 40, 10, 0.35)"/>
+                        <stop offset="35%" stop-color="rgba(92, 26, 27, 0.18)"/>
+                        <stop offset="70%" stop-color="rgba(20, 17, 12, 0)"/>
+                    </radialGradient>
 
-                    <!-- Glow filter -->
+                    <!-- Subtle tight glow — halo around letters, not flicker -->
                     <filter id="glow" x="-10%" y="-10%" width="120%" height="120%">
-                        <feGaussianBlur stdDeviation="4" result="blur"/>
+                        <feGaussianBlur stdDeviation="2" result="blur"/>
                         <feMerge>
-                            <feMergeNode in="blur"/>
                             <feMergeNode in="blur"/>
                             <feMergeNode in="SourceGraphic"/>
                         </feMerge>
                     </filter>
 
-                    <!-- Strong glow for ember layer -->
+                    <!-- Ember glow -->
                     <filter id="emberGlow" x="-20%" y="-20%" width="140%" height="140%">
                         <feGaussianBlur stdDeviation="2.5" result="blur"/>
                         <feMerge>
@@ -100,7 +87,7 @@
 
                     <!-- Subtle glow for the sword blade (cold steel glint) -->
                     <filter id="bladeGlint" x="-20%" y="-20%" width="140%" height="140%">
-                        <feGaussianBlur stdDeviation="1.5" result="blur"/>
+                        <feGaussianBlur stdDeviation="1.2" result="blur"/>
                         <feMerge>
                             <feMergeNode in="blur"/>
                             <feMergeNode in="SourceGraphic"/>
@@ -108,25 +95,41 @@
                     </filter>
                 </defs>
 
-                <!-- ================ TIER 1: "GAME OF GIT" (with sword replacing I) ================ -->
+                <!-- ================ FIRELIT BACKDROP ================ -->
+                <ellipse cx="450" cy="225" rx="420" ry="180" fill="url(#firelitBackdrop)"/>
+
+                <!-- ================ TIER 1: "GAME OF GIT" (with sword replacing I) ================
+                     Each half is rendered in three passes to simulate engraved metal:
+                       (a) dark shadow offset down-right    — "pressed into stone" depression
+                       (b) bright highlight offset up-left  — rim lit by overhead firelight
+                       (c) main fill with vertical emboss gradient
+                     All three tiers use the same technique. No color animation — static metal. -->
                 <!-- Left half: "GAME OF G" -->
                 <text x="450" y="105" text-anchor="end" dx="-40"
-                      class="logo-tier-1 logo-shadow"
-                      fill="rgba(0,0,0,0.75)"
-                      transform="translate(3,5)">GAME OF G</text>
+                      class="logo-tier-1"
+                      fill="rgba(0,0,0,0.85)"
+                      transform="translate(2,4)">GAME OF G</text>
                 <text x="450" y="105" text-anchor="end" dx="-40"
                       class="logo-tier-1"
-                      fill="url(#fireGradAnim)"
+                      fill="rgba(255,240,180,0.35)"
+                      transform="translate(-1,-1)">GAME OF G</text>
+                <text x="450" y="105" text-anchor="end" dx="-40"
+                      class="logo-tier-1"
+                      fill="url(#embossGrad)"
                       filter="url(#glow)">GAME OF G</text>
 
                 <!-- Right half: "T" — placed just right of the sword -->
                 <text x="450" y="105" text-anchor="start" dx="40"
-                      class="logo-tier-1 logo-shadow"
-                      fill="rgba(0,0,0,0.75)"
-                      transform="translate(3,5)">T</text>
+                      class="logo-tier-1"
+                      fill="rgba(0,0,0,0.85)"
+                      transform="translate(2,4)">T</text>
                 <text x="450" y="105" text-anchor="start" dx="40"
                       class="logo-tier-1"
-                      fill="url(#fireGradAnim)"
+                      fill="rgba(255,240,180,0.35)"
+                      transform="translate(-1,-1)">T</text>
+                <text x="450" y="105" text-anchor="start" dx="40"
+                      class="logo-tier-1"
+                      fill="url(#embossGrad)"
                       filter="url(#glow)">T</text>
 
                 <!-- Sword: stands where the "I" of "GIT" belongs. -->
@@ -170,39 +173,38 @@
                       fill="url(#sheenGrad)"
                       opacity="0.9">T</text>
 
-                <!-- ================ TIER 2: small italic subtitle ================ -->
-                <text x="450" y="195" text-anchor="middle"
-                      class="logo-tier-2 logo-shadow"
-                      fill="rgba(0,0,0,0.6)"
-                      transform="translate(2,3)">The Tears of</text>
+                <!-- ================ TIER 2: small uppercase subtitle (same emboss style) ================ -->
                 <text x="450" y="195" text-anchor="middle"
                       class="logo-tier-2"
-                      fill="url(#fireGradAnim)"
-                      filter="url(#glow)">The Tears of</text>
+                      fill="rgba(0,0,0,0.8)"
+                      transform="translate(1,2)">THE TEARS OF</text>
+                <text x="450" y="195" text-anchor="middle"
+                      class="logo-tier-2"
+                      fill="rgba(255,240,180,0.3)"
+                      transform="translate(-0.5,-0.5)">THE TEARS OF</text>
+                <text x="450" y="195" text-anchor="middle"
+                      class="logo-tier-2"
+                      fill="url(#embossGrad)">THE TEARS OF</text>
 
-                <!-- ================ TIER 3: "DEVSECOPS" — the weighted base ================ -->
-                <text x="450" y="320" text-anchor="middle"
-                      class="logo-tier-3 logo-shadow"
-                      fill="rgba(0,0,0,0.75)"
-                      transform="translate(4,7)">DEVSECOPS</text>
-
-                <!-- Heat-shimmer copy behind -->
-                <text x="450" y="320" text-anchor="middle"
-                      class="logo-tier-3 logo-shimmer"
-                      fill="url(#fireGradAnim)"
-                      filter="url(#heatShimmer)"
-                      opacity="0.35">DEVSECOPS</text>
-
+                <!-- ================ TIER 3: "DEVSECOPS" — the weighted base (emboss + sheen) ================ -->
                 <text x="450" y="320" text-anchor="middle"
                       class="logo-tier-3"
-                      fill="url(#fireGradAnim)"
+                      fill="rgba(0,0,0,0.9)"
+                      transform="translate(3,6)">DEVSECOPS</text>
+                <text x="450" y="320" text-anchor="middle"
+                      class="logo-tier-3"
+                      fill="rgba(255,240,180,0.4)"
+                      transform="translate(-1.5,-1.5)">DEVSECOPS</text>
+                <text x="450" y="320" text-anchor="middle"
+                      class="logo-tier-3"
+                      fill="url(#embossGrad)"
                       filter="url(#glow)">DEVSECOPS</text>
 
-                <!-- Shimmer sweep over tier 3 -->
+                <!-- Sheen sweep over tier 3 (subtle specular highlight moving across) -->
                 <text x="450" y="320" text-anchor="middle"
                       class="logo-tier-3"
                       fill="url(#sheenGrad)"
-                      opacity="0.9">DEVSECOPS</text>
+                      opacity="0.75">DEVSECOPS</text>
 
                 <!-- Decorative rules above and below the subtitle -->
                 <line x1="180" y1="170" x2="720" y2="170"

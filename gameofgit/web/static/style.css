@@ -71,69 +71,54 @@ body {
     width: 100%;
     height: auto;
     overflow: visible;
-    animation: flickerMain 2.8s ease-in-out infinite;
-    filter: drop-shadow(0 0 18px rgba(212, 175, 55, 0.5));
+    /* Slight vertical stretch for the tall/narrow GoT proportions. */
+    transform: scaleY(1.08);
+    transform-origin: center center;
+    /* Stable firelit glow — no color-cycle flicker. GoT reads as majestic,
+       not nervous; the glow just warms the whole group. */
+    animation: logoBreath 6s ease-in-out infinite;
+    filter: drop-shadow(0 0 18px rgba(212, 175, 55, 0.35))
+            drop-shadow(0 0 48px rgba(139, 40, 10, 0.25));
 }
 
-/* Logo text base style (applied via SVG class, referenced from CSS) */
-.logo-text {
-    font-family: var(--font-display);
-    font-weight: 900;
-    font-size: 78px;
-    letter-spacing: 10px;
+@keyframes logoBreath {
+    0%, 100% {
+        filter: drop-shadow(0 0 16px rgba(212, 175, 55, 0.32))
+                drop-shadow(0 0 42px rgba(139, 40, 10, 0.22));
+    }
+    50% {
+        filter: drop-shadow(0 0 22px rgba(212, 175, 55, 0.42))
+                drop-shadow(0 0 58px rgba(139, 40, 10, 0.28));
+    }
 }
 
-/* --- Three-tier logo: "GAME OF GIT" / "The Tears of" / "DEVSECOPS" --- */
+/* --- Three-tier logo: "GAME OF GIT" / "THE TEARS OF" / "DEVSECOPS" ---
+   All tiers share the Cinzel display face, nearly touching letters, and
+   a subtle vertical stretch that mimics the tall/narrow GoT title card.
+   scaleY is applied via the SVG's transform on the logo-container to
+   keep widths correct; here we use font-size + tight tracking only. */
 .logo-tier-1 {
     font-family: var(--font-display);
     font-weight: 900;
-    font-size: 82px;
-    letter-spacing: 8px;
+    font-size: 90px;
+    letter-spacing: 2px;
 }
 .logo-tier-2 {
-    font-family: var(--font-body);
-    font-style: italic;
-    font-weight: 400;
-    font-size: 38px;
-    letter-spacing: 6px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 34px;
+    letter-spacing: 10px;
 }
 .logo-tier-3 {
     font-family: var(--font-display);
     font-weight: 900;
-    font-size: 110px;
-    letter-spacing: 12px;
+    font-size: 118px;
+    letter-spacing: 3px;
 }
 
-/* Sword group — gentle breathing glint (idle) */
+/* Sword group — stable, no breathing animation (GoT is still). */
 .sword {
-    animation: swordBreath 4.5s ease-in-out infinite;
     transform-box: fill-box;
-}
-@keyframes swordBreath {
-    0%, 100% { filter: url(#bladeGlint) drop-shadow(0 0 3px rgba(212,175,55,0.4)); }
-    50%       { filter: url(#bladeGlint) drop-shadow(0 0 8px rgba(255,224,102,0.7)); }
-}
-
-/* --- Main flicker animation for the whole SVG --- */
-@keyframes flickerMain {
-    0%   { filter: drop-shadow(0 0 16px #d4af37) drop-shadow(0 0 40px rgba(212,175,55,0.3)); }
-    8%   { filter: drop-shadow(0 0 22px #ff9500) drop-shadow(0 0 55px rgba(255,149,0,0.4)); }
-    12%  { filter: drop-shadow(0 0 10px #8b0000) drop-shadow(0 0 25px rgba(139,0,0,0.3)); }
-    20%  { filter: drop-shadow(0 0 20px #d4af37) drop-shadow(0 0 48px rgba(212,175,55,0.35)); }
-    45%  { filter: drop-shadow(0 0 14px #ff6600) drop-shadow(0 0 35px rgba(255,102,0,0.35)); }
-    55%  { filter: drop-shadow(0 0 28px #ffe066) drop-shadow(0 0 60px rgba(255,224,102,0.4)); }
-    70%  { filter: drop-shadow(0 0 12px #8b0000) drop-shadow(0 0 22px rgba(139,0,0,0.25)); }
-    85%  { filter: drop-shadow(0 0 24px #d4af37) drop-shadow(0 0 50px rgba(212,175,55,0.38)); }
-    100% { filter: drop-shadow(0 0 16px #d4af37) drop-shadow(0 0 40px rgba(212,175,55,0.3)); }
-}
-
-/* --- Shimmer layer breathe animation --- */
-.logo-shimmer {
-    animation: shimmerBreath 5s ease-in-out infinite;
-}
-@keyframes shimmerBreath {
-    0%, 100% { opacity: 0.25; }
-    50%       { opacity: 0.45; }
 }
 
 /* --- Ember particle animations --- */

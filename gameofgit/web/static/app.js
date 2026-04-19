@@ -12,6 +12,12 @@
 // ---------------------------------------------------------------------------
 let gameId = null;
 let suggestTimer = null;
+// Cached view of the latest quest state — used by the /exit summary, which
+// needs progress numbers without making another round-trip.
+let currentQuest = null;
+// True while we're waiting for the user to confirm a `/exit`. Next Enter
+// decides: "yes"/"y" leaves, anything else cancels.
+let pendingExit = false;
 
 // ---------------------------------------------------------------------------
 // API helpers
@@ -101,6 +107,7 @@ function clearLog() {
  * @param {object} quest — QuestView JSON from the API
  */
 function renderQuest(quest) {
+    currentQuest = quest;
     // Title
     getEl("quest-title").textContent = quest.title;
 
@@ -171,6 +178,62 @@ function showLevelComplete() {
 }
 
 // ---------------------------------------------------------------------------
+// /exit flow — progress summary + farewell, then return to the Keep
+// ---------------------------------------------------------------------------
+
+/**
+ * Print a final scoreboard + GoT-style valediction scaled to how far the
+ * player got, then close the session and redirect home after a short pause.
+ * Reads progress from `currentQuest` (cached in renderQuest) — no round-trip.
+ */
+function showExitSummary() {
+    var completed = 0;
+    var total = 0;
+    var hintsUsed = 0;
+    if (currentQuest) {
+        // A passing check on the current quest counts as "completed" even if
+        // the server hasn't advanced yet (only the final quest stays in place
+        // after passing — everything else advances).
+        completed = currentQuest.quest_index + (currentQuest.check_passed ? 1 : 0);
+        total = currentQuest.total;
+        hintsUsed = currentQuest.hints_revealed ? currentQuest.hints_revealed.length : 0;
+    }
+
+    var rule = "\u2500".repeat(49);
+    appendLog("", "log-stdout");
+    appendLog(rule, "log-info");
+    appendLog("  Farewell, brave soul.", "log-info");
+    appendLog(rule, "log-info");
+    appendLog("  Quests completed : " + completed + " of " + total, "log-info");
+    appendLog("  Hints revealed   : " + hintsUsed, "log-info");
+    appendLog("", "log-stdout");
+
+    // Scale the congratulation to how far they got.
+    var msg;
+    if (total > 0 && completed >= total) {
+        msg = "You have mastered this level. The realm sings your name.";
+    } else if (total > 0 && completed >= Math.ceil(total / 2)) {
+        msg = "A worthy showing. The sword grows lighter in your hand.";
+    } else if (completed > 0) {
+        msg = "Every maester began with a single scroll. Return when ready.";
+    } else {
+        msg = "The path awaits you still. Return when you are prepared.";
+    }
+    appendLog("  " + msg, "log-info");
+    appendLog("", "log-stdout");
+    appendLog("  Returning to the Keep\u2026", "log-info");
+
+    // Disable input so stray keystrokes can't queue up during redirect.
+    var input = getEl("shell-input");
+    input.disabled = true;
+    input.placeholder = "game ended";
+
+    // Free the sandbox server-side, then go home.
+    closeGame();
+    setTimeout(function() { window.location.href = "/"; }, 2500);
+}
+
+// ---------------------------------------------------------------------------
 // Event handlers
 // ---------------------------------------------------------------------------
 
@@ -180,6 +243,31 @@ async function handleEnter(input) {
     showSuggestion(null);
 
     if (!cmdline) return;
+
+    // If we're waiting for an /exit confirmation, this Enter resolves it.
+    // Any non-"yes" response cancels — the typed text is NOT executed as a
+    // git command, to prevent accidental runs while user thought they were
+    // still at the confirm prompt.
+    if (pendingExit) {
+        pendingExit = false;
+        var lower = cmdline.toLowerCase();
+        if (lower === "yes" || lower === "y") {
+            showExitSummary();
+        } else {
+            appendLog("Exit cancelled. Continue your quest.", "log-info");
+        }
+        return;
+    }
+
+    // /exit shortcut: ask for confirmation, then show progress + farewell
+    if (cmdline === "/exit") {
+        pendingExit = true;
+        appendLog(
+            "Leave the realm? Type 'yes' to confirm, anything else to stay.",
+            "log-info"
+        );
+        return;
+    }
 
     // '?' shortcut: reveal hint without touching the engine
     if (cmdline === "?") {
@@ -254,6 +342,7 @@ async function init() {
 
     appendLog("The sandbox is ready. Type your first git command below.", "log-info");
     appendLog("Type ? for a hint, or click \u2018Show next hint\u2019 on the right.", "log-info");
+    appendLog("Type /exit to leave the realm.", "log-info");
     appendLog("", "log-stdout");
 
     renderQuest(gameData.quest);
