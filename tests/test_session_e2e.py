@@ -57,6 +57,12 @@ def _play_through(session: QuestSession, slug: str) -> None:
         (sandbox / "throne.txt").write_text("The Iron Throne stands resolute.\n")
         session.run("git add throne.txt")
         session.run('git commit -m "resolve: throne"')
+    elif slug == "inspect-remotes":
+        session.run("git remote -v")
+    elif slug == "fetch-the-news":
+        session.run("git fetch origin")
+    elif slug == "push-your-work":
+        session.run("git push origin main")
     else:
         raise AssertionError(f"no playthrough defined for slug: {slug}")
 
