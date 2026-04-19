@@ -7,14 +7,19 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from gameofgit.engine import suggest
+from gameofgit.player.store import InvalidName, load_or_create, save
 from gameofgit.web.games import close_game, get_game, new_game
 from gameofgit.web.schemas import (
+    CreateGameRequest,
+    CreatePlayerRequest,
     GameCreatedResponse,
+    PlayerView,
     QuestView,
     RunRequest,
     RunResponse,
     SuggestRequest,
     SuggestResponse,
+    player_view,
     quest_view,
 )
 
@@ -22,19 +27,11 @@ _STATIC_DIR = Path(__file__).parent / "static"
 
 app = FastAPI(title="Game of GIT")
 
-# Mount static assets (CSS, JS, etc.) — must be mounted before the catch-all routes.
 app.mount("/static", StaticFiles(directory=_STATIC_DIR), name="static")
 
 
 @app.middleware("http")
 async def _no_cache_assets(request: Request, call_next):
-    """Disable browser caching for HTML/JS/CSS so dev edits propagate.
-
-    Without this, a stale `app.js` cached in the browser will keep running
-    even after the file changes — symptom: newly added commands behave as
-    though they don't exist. Targets the game pages and /static/, not API
-    responses (which aren't cached anyway).
-    """
     response = await call_next(request)
     path = request.url.path
     if path.startswith("/static/") or path in ("/", "/play"):
@@ -60,20 +57,55 @@ async def play_page() -> FileResponse:
 
 
 # ---------------------------------------------------------------------------
+# Player API
+# ---------------------------------------------------------------------------
+
+
+@app.post("/api/player", response_model=PlayerView)
+async def create_or_load_player(req: CreatePlayerRequest) -> PlayerView:
+    try:
+        player = load_or_create(req.name)
+    except InvalidName as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    # Persist at least the name so /api/player/{slug} works on later requests.
+    save(player)
+    return player_view(player)
+
+
+@app.get("/api/player/{slug}", response_model=PlayerView)
+async def get_player(slug: str) -> PlayerView:
+    # A slug here maps back to a real file if-and-only-if a profile exists.
+    from pathlib import Path as _P
+    from gameofgit.player.store import _path_for  # type: ignore[attr-defined]
+    if not _path_for(slug).exists():
+        raise HTTPException(status_code=404, detail="No such player.")
+    player = load_or_create(slug)
+    return player_view(player)
+
+
+# ---------------------------------------------------------------------------
 # Game API
 # ---------------------------------------------------------------------------
 
 
 @app.post("/api/game", response_model=GameCreatedResponse)
-async def create_game() -> GameCreatedResponse:
-    """Create a new game, return the game_id and first quest view."""
-    game = new_game()
-    return GameCreatedResponse(game_id=game.id, quest=quest_view(game))
+async def create_game(req: CreateGameRequest) -> GameCreatedResponse:
+    from gameofgit.player.store import _path_for  # type: ignore[attr-defined]
+    if not _path_for(req.player_slug).exists():
+        raise HTTPException(
+            status_code=400,
+            detail="Unknown player. Create a profile first via POST /api/player.",
+        )
+    game = new_game(req.player_slug)
+    return GameCreatedResponse(
+        game_id=game.id,
+        quest=quest_view(game),
+        player=player_view(game.player),
+    )
 
 
 @app.post("/api/game/{gid}/run", response_model=RunResponse)
 async def run_command(gid: str, req: RunRequest) -> RunResponse:
-    """Run a git command in the game's sandbox. Auto-advances on quest pass."""
     game = get_game(gid)
     if game is None:
         raise HTTPException(status_code=404, detail="Game not found")
@@ -83,7 +115,16 @@ async def run_command(gid: str, req: RunRequest) -> RunResponse:
 
     advanced = False
     level_complete = False
+    xp_awarded = 0
+
     if outcome.check.passed and not prev_passed:
+        slug = game.quest.slug
+        if slug not in game.player.completed_quests:
+            game.player.completed_quests.add(slug)
+            game.player.xp += game.quest.xp
+            xp_awarded = game.quest.xp
+            save(game.player)
+
         if game.is_last_quest:
             level_complete = True
         else:
@@ -97,12 +138,13 @@ async def run_command(gid: str, req: RunRequest) -> RunResponse:
         quest=quest_view(game),
         advanced=advanced,
         level_complete=level_complete,
+        xp_awarded=xp_awarded,
+        player=player_view(game.player),
     )
 
 
 @app.post("/api/game/{gid}/hint", response_model=QuestView)
 async def reveal_hint(gid: str) -> QuestView:
-    """Reveal the next hint for the current quest (bumps hints_revealed by one)."""
     game = get_game(gid)
     if game is None:
         raise HTTPException(status_code=404, detail="Game not found")
@@ -116,7 +158,6 @@ async def reveal_hint(gid: str) -> QuestView:
 
 @app.post("/api/game/{gid}/suggest", response_model=SuggestResponse)
 async def get_suggestion(gid: str, req: SuggestRequest) -> SuggestResponse:
-    """Return a typo-corrected command line, or null if none needed."""
     game = get_game(gid)
     if game is None:
         raise HTTPException(status_code=404, detail="Game not found")
@@ -127,5 +168,4 @@ async def get_suggestion(gid: str, req: SuggestRequest) -> SuggestResponse:
 
 @app.delete("/api/game/{gid}", status_code=204)
 async def delete_game(gid: str) -> None:
-    """Close the game's sandbox and remove it from the registry."""
     close_game(gid)
