@@ -39,6 +39,24 @@ def _play_through(session: QuestSession, slug: str) -> None:
     elif slug == "switch-and-return":
         session.run("git checkout dragonstone")
         session.run("git checkout main")
+    elif slug == "fast-forward-merge":
+        # Seed leaves us on main; feature is ahead by 2 commits.
+        session.run("git merge feature")
+    elif slug == "rebase-a-branch":
+        session.run("git checkout feature")
+        session.run("git rebase main")
+    elif slug == "cherry-pick-one":
+        # Pick the middle of three commits on `experiment`.
+        out = session.run("git log experiment --pretty=%H")
+        middle_sha = out.stdout.splitlines()[1]
+        session.run(f"git cherry-pick {middle_sha}")
+    elif slug == "resolve-the-conflict":
+        # Merging rebellion into main collides on throne.txt — that's expected.
+        session.run("git merge rebellion")
+        # The UI would let the player edit the file; simulate that here.
+        (sandbox / "throne.txt").write_text("The Iron Throne stands resolute.\n")
+        session.run("git add throne.txt")
+        session.run('git commit -m "resolve: throne"')
     else:
         raise AssertionError(f"no playthrough defined for slug: {slug}")
 
