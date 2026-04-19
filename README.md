@@ -23,9 +23,16 @@ pip install -r requirements.txt
 python -m gameofgit
 ```
 
-Then open <http://localhost:8000>. Click **PLAY** to start.
+On startup the server prints the LAN URL(s) it's reachable on — something like:
 
-The server binds to `0.0.0.0`, so it's also reachable from other machines on your network via `http://<your-lan-ip>:8000` — handy for playing from a phone or another laptop.
+```
+  Game of GIT: The Tears of DevSecOps
+  ─────────────────────────────────────
+  Play at:
+    http://192.168.1.42:8000
+```
+
+Open that URL in a browser (on the same machine or on any phone / laptop on the same network) and click **PLAY** to start. The server binds to every interface, so there's no private-only loopback URL — use the address it prints.
 
 ### How to play
 
