@@ -5,6 +5,7 @@ from gameofgit.engine.quest import CheckResult, Quest, SessionState
 from gameofgit.quests._helpers import (
     commit_count,
     commit_file,
+    head_message,
     run_git,
     set_identity,
 )
@@ -21,6 +22,8 @@ def _seed_with_staged_oath(sandbox: Path) -> None:
 
 
 def _check_unstage_a_file(sandbox: Path, _state: SessionState) -> CheckResult:
+    if not (sandbox / "oath.txt").exists():
+        return CheckResult(False, "oath.txt vanished — unstage it, don't delete it.")
     staged = run_git(
         ["git", "diff", "--cached", "--name-only"], cwd=sandbox, capture=True
     ).stdout.strip()
@@ -108,6 +111,11 @@ def _check_revert_a_public_commit(sandbox: Path, _state: SessionState) -> CheckR
     ).stdout.split()
     if "bug.txt" in tree:
         return CheckResult(False, "bug.txt is still in the tree — the revert didn't remove it.")
+    if not head_message(sandbox).startswith('Revert "'):
+        return CheckResult(
+            False,
+            "Your top commit isn't a `git revert` commit — use `git revert` so the reversal is explicit in history.",
+        )
     return CheckResult(True)
 
 

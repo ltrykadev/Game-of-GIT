@@ -34,3 +34,22 @@ def test_revert_a_public_commit_pass(tmp_path):
     ).stdout.splitlines()[1]
     run_git(["git", "revert", "--no-edit", bad_sha], cwd=tmp_path)
     assert REVERT_A_PUBLIC_COMMIT.check(tmp_path, _blank()).passed is True
+
+
+def test_unstage_rejects_file_deletion(tmp_path):
+    UNSTAGE_A_FILE.seed(tmp_path)
+    # Deleting the file + staging the deletion empties the index of oath.txt,
+    # which the old check accepted. The new check must reject.
+    (tmp_path / "oath.txt").unlink()
+    run_git(["git", "add", "-A"], cwd=tmp_path)
+    assert UNSTAGE_A_FILE.check(tmp_path, _blank()).passed is False
+
+
+def test_revert_rejects_manual_delete_commit(tmp_path):
+    REVERT_A_PUBLIC_COMMIT.seed(tmp_path)
+    # Non-revert solution: manually rm the file and commit. Old check accepted
+    # this; new check should reject (HEAD message must start with `Revert "`).
+    (tmp_path / "bug.txt").unlink()
+    run_git(["git", "add", "-A"], cwd=tmp_path)
+    run_git(["git", "commit", "-q", "-m", "goodbye bug"], cwd=tmp_path)
+    assert REVERT_A_PUBLIC_COMMIT.check(tmp_path, _blank()).passed is False
