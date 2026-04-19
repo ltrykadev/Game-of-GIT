@@ -32,6 +32,13 @@ def _play_through(session: QuestSession, slug: str) -> None:
         out = session.run("git log --pretty=%H -n 2")
         sha = out.stdout.splitlines()[-1]
         session.run(f"git show {sha}")
+    elif slug == "list-the-branches":
+        session.run("git branch")
+    elif slug == "make-a-branch":
+        session.run("git branch kingsguard")
+    elif slug == "switch-and-return":
+        session.run("git checkout dragonstone")
+        session.run("git checkout main")
     else:
         raise AssertionError(f"no playthrough defined for slug: {slug}")
 
