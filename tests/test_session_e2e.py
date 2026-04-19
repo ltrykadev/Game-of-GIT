@@ -74,6 +74,12 @@ def _play_through(session: QuestSession, slug: str) -> None:
             ["git", "log", "--pretty=%H"], cwd=sandbox, capture=True
         ).stdout.splitlines()[1]
         session.run(f"git revert --no-edit {bad_sha}")
+    elif slug == "stash-your-changes":
+        session.run("git stash")
+    elif slug == "list-the-stashes":
+        session.run("git stash list")
+    elif slug == "pop-a-stash":
+        session.run("git stash pop")
     else:
         raise AssertionError(f"no playthrough defined for slug: {slug}")
 
