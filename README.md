@@ -49,6 +49,20 @@ The codebase is split into a UI-agnostic engine and a FastAPI web layer:
 
 Every quest runs against a throwaway repo under `/tmp`; the player's working tree is never touched.
 
+### Repo utility: `.claude/scripts/file_cmd.py`
+
+A tiny CLI for three file operations, committed alongside the codebase:
+
+```bash
+python3 .claude/scripts/file_cmd.py add    <path> [content...]
+python3 .claude/scripts/file_cmd.py edit   <path> [note...]
+python3 .claude/scripts/file_cmd.py delete <path>
+```
+
+`edit` appends a visually unique **stamp** — an ISO-8601 UTC timestamp, an optional note, and a 50-character random ID — using the correct comment leader for the file's extension (`#`, `//`, or a wrapping `<!-- … -->` block). It's useful for leaving audit markers on files during long-running manual work.
+
+If you drive this repo with [Claude Code](https://claude.com/claude-code), the same three verbs are also reachable as the `/file` slash command (`.claude/commands/file.md`), which adds a confirmation step before `delete` and a guard against stamping credential-shaped paths.
+
 ## Levels
 
 ### LEVEL 1: INIT NOOB (Survival basics)
