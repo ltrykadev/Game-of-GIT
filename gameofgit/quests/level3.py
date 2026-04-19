@@ -101,7 +101,8 @@ def _current_branch(sandbox: Path) -> str:
 
 def _reflog_mentions(sandbox: Path, name: str) -> bool:
     out = run_git(["git", "reflog"], cwd=sandbox, capture=True).stdout
-    return name in out
+    target = f" to {name}"
+    return any(line.rstrip().endswith(target) for line in out.splitlines())
 
 
 def _check_switch_and_return(sandbox: Path, _state: SessionState) -> CheckResult:

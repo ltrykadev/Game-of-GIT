@@ -32,3 +32,11 @@ def test_switch_and_return_pass_after_round_trip(tmp_path):
     run_git(["git", "checkout", "dragonstone"], cwd=tmp_path)
     run_git(["git", "checkout", "main"], cwd=tmp_path)
     assert SWITCH_AND_RETURN.check(tmp_path, _blank()).passed is True
+
+
+def test_switch_and_return_rejects_similarly_named_branch(tmp_path):
+    SWITCH_AND_RETURN.seed(tmp_path)
+    run_git(["git", "checkout", "-b", "dragonstone-copy"], cwd=tmp_path)
+    run_git(["git", "checkout", "main"], cwd=tmp_path)
+    # Player never visited real dragonstone — check must fail.
+    assert SWITCH_AND_RETURN.check(tmp_path, _blank()).passed is False
