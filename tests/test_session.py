@@ -9,7 +9,7 @@ from gameofgit.engine.session import Outcome, QuestSession
 def _quest(
     slug: str = "t",
     allowed: frozenset[str] = frozenset({"init", "status"}),
-    check=lambda _p: CheckResult(False),
+    check=lambda _p, _s: CheckResult(False),
     seed=None,
 ) -> Quest:
     return Quest(
@@ -19,6 +19,8 @@ def _quest(
         hints=(),
         allowed=allowed,
         check=check,
+        xp=1,
+        level=1,
         seed=seed,
     )
 
@@ -34,7 +36,7 @@ def test_session_creates_and_destroys_sandbox():
 def test_session_runs_initial_check_and_stores_it():
     calls = []
 
-    def check(path):
+    def check(path, state):
         calls.append(path)
         return CheckResult(False, "initial")
 
@@ -72,7 +74,7 @@ def test_session_seed_failure_cleans_up_and_reraises():
 
 
 def test_session_empty_command_is_noop():
-    q = _quest(check=lambda _p: CheckResult(True, "already done"))
+    q = _quest(check=lambda _p, _s: CheckResult(True, "already done"))
     with QuestSession(q) as s:
         out = s.run("")
         assert isinstance(out, Outcome)
@@ -104,7 +106,7 @@ def test_session_disallowed_subcommand_returns_127():
 def test_session_parser_reject_does_not_rerun_check():
     calls = 0
 
-    def check(_p):
+    def check(_p, _s):
         nonlocal calls
         calls += 1
         return CheckResult(False)
@@ -121,7 +123,7 @@ def test_session_parser_reject_does_not_rerun_check():
 def test_session_successful_git_reruns_check_and_can_complete_quest():
     calls = 0
 
-    def check(path):
+    def check(path, _s):
         nonlocal calls
         calls += 1
         return CheckResult((path / ".git").is_dir())
@@ -140,7 +142,7 @@ def test_session_failing_git_still_reruns_check():
     # afterward — the spec says "every real subprocess" triggers a re-check.
     calls = 0
 
-    def check(_p):
+    def check(_p, _s):
         nonlocal calls
         calls += 1
         return CheckResult(False)
@@ -163,7 +165,7 @@ def test_session_close_is_idempotent():
 def test_session_malformed_command_returns_127_and_reuses_check():
     calls = {"n": 0}
 
-    def check(_):
+    def check(_, _s):
         calls["n"] += 1
         return CheckResult(False, "not done")
 
@@ -174,6 +176,8 @@ def test_session_malformed_command_returns_127_and_reuses_check():
         hints=(),
         allowed=frozenset({"status"}),
         check=check,
+        xp=1,
+        level=1,
         seed=None,
     )
     with QuestSession(q) as s:
@@ -182,3 +186,65 @@ def test_session_malformed_command_returns_127_and_reuses_check():
         assert out.exit_code == 127
         assert calls["n"] == before  # check NOT re-run
         assert out.check.passed is False
+
+
+def test_session_tracks_last_argv_on_success(tmp_path, monkeypatch):
+    """Successful commands are recorded in SessionState passed to the check."""
+    from pathlib import Path
+    from gameofgit.engine.quest import CheckResult, Quest, SessionState
+    from gameofgit.engine.session import QuestSession
+
+    captured: list[SessionState] = []
+
+    def check(_: Path, state: SessionState) -> CheckResult:
+        captured.append(state)
+        return CheckResult(passed=False)
+
+    q = Quest(
+        slug="t", title="", brief="", hints=(),
+        allowed=frozenset({"init", "status"}),
+        check=check, xp=1, level=1, seed=None,
+    )
+    s = QuestSession(q)
+    try:
+        s.run("git init")
+        s.run("git status")
+    finally:
+        s.close()
+
+    # First capture is the initial post-seed check (no commands run yet)
+    assert captured[0].last_argv is None
+    assert captured[0].all_argv == []
+    # After git init
+    assert captured[1].last_argv == ("git", "init")
+    # After git status — all_argv has both
+    assert captured[-1].last_argv == ("git", "status")
+    assert captured[-1].all_argv == [("git", "init"), ("git", "status")]
+
+
+def test_session_does_not_record_failed_commands(tmp_path):
+    """Commands that exit non-zero are not added to all_argv."""
+    from pathlib import Path
+    from gameofgit.engine.quest import CheckResult, Quest, SessionState
+    from gameofgit.engine.session import QuestSession
+
+    captured: list[SessionState] = []
+
+    def check(_: Path, state: SessionState) -> CheckResult:
+        captured.append(state)
+        return CheckResult(passed=False)
+
+    q = Quest(
+        slug="t", title="", brief="", hints=(),
+        allowed=frozenset({"status", "log"}),
+        check=check, xp=1, level=1, seed=None,
+    )
+    s = QuestSession(q)
+    try:
+        # git log in an empty (non-initialized) dir fails
+        s.run("git log")
+    finally:
+        s.close()
+
+    # Only the initial pre-command capture exists; the failed log was not added
+    assert all(c.all_argv == [] for c in captured)

@@ -1,3 +1,4 @@
+import shlex
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -7,7 +8,7 @@ from .parser import (
     EngineError,
     parse,
 )
-from .quest import CheckResult, Quest
+from .quest import CheckResult, Quest, SessionState
 from .sandbox import Sandbox
 
 
@@ -25,13 +26,21 @@ class QuestSession:
     def __init__(self, quest: Quest) -> None:
         self._quest = quest
         self._sandbox = Sandbox()
+        self._last_argv: tuple[str, ...] | None = None
+        self._all_argv: list[tuple[str, ...]] = []
         try:
             if quest.seed is not None:
                 quest.seed(self._sandbox.path)
-            self._last_check: CheckResult = quest.check(self._sandbox.path)
+            self._last_check: CheckResult = self._run_check()
         except Exception:
             self._sandbox.close()
             raise
+
+    def _state(self) -> SessionState:
+        return SessionState(last_argv=self._last_argv, all_argv=list(self._all_argv))
+
+    def _run_check(self) -> CheckResult:
+        return self._quest.check(self._sandbox.path, self._state())
 
     def run(self, cmdline: str) -> Outcome:
         try:
@@ -47,9 +56,12 @@ class QuestSession:
             )
 
         result = execute(argv, cwd=self._sandbox.path)
-        # Re-evaluate the predicate after every real subprocess invocation,
-        # whether git succeeded or failed.
-        self._last_check = self._quest.check(self._sandbox.path)
+        # Only record successful runs — failed commands don't count as "done this".
+        if result.exit_code == 0:
+            recorded = tuple(argv)
+            self._last_argv = recorded
+            self._all_argv.append(recorded)
+        self._last_check = self._run_check()
         return Outcome(result.stdout, result.stderr, result.exit_code, self._last_check)
 
     def close(self) -> None:
