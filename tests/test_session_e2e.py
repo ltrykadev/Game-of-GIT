@@ -88,6 +88,12 @@ def _play_through(session: QuestSession, slug: str) -> None:
         session.run('git commit -m "rename"')
     elif slug == "amend-your-last-commit":
         session.run('git commit --amend -m "Properly describe the work"')
+    elif slug == "set-your-name":
+        session.run('git config user.name "Robb Stark"')
+    elif slug == "set-your-email":
+        session.run('git config user.email "robb@winterfell.north"')
+    elif slug == "list-the-config":
+        session.run("git config --list")
     else:
         raise AssertionError(f"no playthrough defined for slug: {slug}")
 
