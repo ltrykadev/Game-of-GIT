@@ -10,8 +10,18 @@ _ALLOWED = frozenset({
 
 
 def _bare_repo_for(sandbox: Path) -> Path:
-    """Sibling dir to `sandbox` that serves as origin."""
-    return sandbox.parent / (sandbox.name + ".origin.git")
+    """Bare origin repo, kept inside the sandbox so Sandbox.close() cleans it up.
+
+    Hidden (leading dot) so a `ls` from the player doesn't see it, but git
+    itself doesn't care — it treats the sandbox as the working tree and the
+    .origin.git/ subdir is just another directory to it.
+    """
+    return sandbox / ".origin.git"
+
+
+def _helper_clone_for(sandbox: Path) -> Path:
+    """Scratch clone used to push a commit into the bare origin during seed."""
+    return sandbox / ".helper"
 
 
 def _seed_with_origin(sandbox: Path) -> None:
@@ -21,6 +31,10 @@ def _seed_with_origin(sandbox: Path) -> None:
 
     run_git(["git", "init", "-q", "-b", "main"], cwd=sandbox)
     set_identity(sandbox)
+    # Hide the scratch dirs from the player's `git status` / `git add`.
+    (sandbox / ".gitignore").write_text(".origin.git/\n.helper/\n")
+    run_git(["git", "add", ".gitignore"], cwd=sandbox)
+    run_git(["git", "commit", "-q", "-m", "ignore scratch"], cwd=sandbox)
     commit_file(sandbox, "readme.txt", "raven post\n", "first raven")
     run_git(["git", "remote", "add", "origin", str(bare)], cwd=sandbox)
     run_git(["git", "push", "-q", "-u", "origin", "main"], cwd=sandbox)
@@ -31,7 +45,7 @@ def _seed_remote_ahead(sandbox: Path) -> None:
     _seed_with_origin(sandbox)
     bare = _bare_repo_for(sandbox)
     # Spawn a helper clone, add a commit, push back to bare
-    helper = sandbox.parent / (sandbox.name + ".helper")
+    helper = _helper_clone_for(sandbox)
     helper.mkdir(parents=True, exist_ok=True)
     run_git(["git", "clone", "-q", str(bare), "."], cwd=helper)
     set_identity(helper)
