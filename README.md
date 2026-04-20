@@ -12,7 +12,14 @@ The window is split in two: the left pane simulates a shell where the player typ
 
 ## Status
 
-Playable: **Level 1 (INIT NOOB)** — four quests covering `git init`, `git add`, and `git commit`. Levels 2–10 are specified below and are the implementation roadmap.
+Playable: **all 10 levels, 33 quests**. Named player profiles with XP-tracked
+tier progression: **Junior → Senior → Expert** (Expert requires completing
+every quest). Profiles persist to `~/.gameofgit/players/<slug>.json`.
+
+Level roster:
+- L1 INIT NOOB · L2 TIME TRAVELER · L3 BRANCH MASTER · L4 MERGE WARRIOR (boss)
+- L5 REMOTE HACKER · L6 DAMAGE CONTROL · L7 STEALTH MODE · L8 CLEANUP CREW
+- L9 CONFIG GOD · L10 GIT NINJA (final boss: bisect a planted bug)
 
 ## Quick start
 
@@ -40,6 +47,8 @@ Open that URL in a browser (on the same machine or on any phone / laptop on the 
 
 ### How to play
 
+- On the home page, enter a player name before clicking **PLAY**. Your XP and completed quests persist under that name across browser sessions and across devices on the same machine.
+- The status bar shows your current **Tier** (Junior / Senior / Expert), total **XP**, and a progress bar to the next tier.
 - Type any `git` command in the left pane and press **Enter**. Success is checked against the repo state, not the exact command.
 - Type `?` and press Enter to reveal a hint (one at a time).
 - Type `/exit` and confirm with `yes` to leave the realm — the shell prints a progress summary (quests completed, hints revealed) and a farewell, then returns you to the home page.
