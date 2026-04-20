@@ -73,15 +73,15 @@ def _check_fetch_the_news(sandbox: Path, _state: SessionState) -> CheckResult:
     bare_sha = run_git(
         ["git", "rev-parse", "main"], cwd=bare, capture=True
     ).stdout.strip()
-    try:
-        origin_ref = run_git(
-            ["git", "rev-parse", "refs/remotes/origin/main"],
-            cwd=sandbox,
-            capture=True,
-        ).stdout.strip()
-    except Exception:
+    result = run_git(
+        ["git", "rev-parse", "refs/remotes/origin/main"],
+        cwd=sandbox,
+        capture=True,
+        check=False,
+    )
+    if result.returncode != 0:
         return CheckResult(False, "origin/main isn't known yet — try `git fetch`.")
-    if origin_ref == bare_sha:
+    if result.stdout.strip() == bare_sha:
         return CheckResult(True)
     return CheckResult(False, "origin/main is still out of date — `git fetch` to catch up.")
 
