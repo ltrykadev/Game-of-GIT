@@ -44,6 +44,12 @@ from gameofgit.quests.level8 import (
     RENAME_A_FILE,
 )
 from gameofgit.quests.level9 import LIST_THE_CONFIG, SET_YOUR_EMAIL, SET_YOUR_NAME
+from gameofgit.quests.level10 import (
+    BLAME_A_LINE,
+    FIND_THE_BUG,
+    READ_THE_REFLOG,
+    TAG_A_RELEASE,
+)
 
 _LEVEL1 = (INIT_REPO, STAGE_A_FILE, FIRST_COMMIT, MEANINGFUL_MESSAGE)
 _LEVEL2 = (READ_THE_LOG, SPOT_THE_DIFF, INSPECT_A_COMMIT)
@@ -54,6 +60,7 @@ _LEVEL6 = (UNSTAGE_A_FILE, UNDO_A_COMMIT_KEEP_WORK, REVERT_A_PUBLIC_COMMIT)
 _LEVEL7 = (STASH_YOUR_CHANGES, LIST_THE_STASHES, POP_A_STASH)
 _LEVEL8 = (REMOVE_A_TRACKED_FILE, RENAME_A_FILE, AMEND_YOUR_LAST_COMMIT)
 _LEVEL9 = (SET_YOUR_NAME, SET_YOUR_EMAIL, LIST_THE_CONFIG)
+_LEVEL10 = (READ_THE_REFLOG, BLAME_A_LINE, TAG_A_RELEASE, FIND_THE_BUG)
 
 
 def all_quests() -> Iterable[Quest]:
@@ -67,6 +74,7 @@ def all_quests() -> Iterable[Quest]:
         + _LEVEL7
         + _LEVEL8
         + _LEVEL9
+        + _LEVEL10
     )
 
 

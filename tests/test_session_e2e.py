@@ -94,6 +94,21 @@ def _play_through(session: QuestSession, slug: str) -> None:
         session.run('git config user.email "robb@winterfell.north"')
     elif slug == "list-the-config":
         session.run("git config --list")
+    elif slug == "read-the-reflog":
+        session.run("git reflog")
+    elif slug == "blame-a-line":
+        session.run("git blame chronicle.txt")
+    elif slug == "tag-a-release":
+        session.run('git tag -a v1.0 -m "first release"')
+    elif slug == "find-the-bug":
+        session.run("git bisect start")
+        session.run("git bisect bad HEAD")
+        first = run_git(
+            ["git", "rev-list", "--max-parents=0", "HEAD"],
+            cwd=sandbox, capture=True,
+        ).stdout.strip()
+        session.run(f"git bisect good {first}")
+        session.run("git bisect run ./bisect_test.sh")
     else:
         raise AssertionError(f"no playthrough defined for slug: {slug}")
 
