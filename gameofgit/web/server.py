@@ -112,19 +112,21 @@ async def run_command(gid: str, req: RunRequest) -> RunResponse:
 
     prev_passed = game.session._last_check.passed
     outcome = game.session.run(req.cmdline)
+    slug = game.quest.slug
 
     advanced = False
     level_complete = False
     xp_awarded = 0
 
-    if outcome.check.passed and not prev_passed:
-        slug = game.quest.slug
-        if slug not in game.player.completed_quests:
-            game.player.completed_quests.add(slug)
-            game.player.xp += game.quest.xp
-            xp_awarded = game.quest.xp
-            save(game.player)
+    # XP: gated on player lifetime state — award once ever, per player.
+    if outcome.check.passed and slug not in game.player.completed_quests:
+        game.player.completed_quests.add(slug)
+        game.player.xp += game.quest.xp
+        xp_awarded = game.quest.xp
+        save(game.player)
 
+    # Advance: gated on session edge — only when this command flipped the check.
+    if outcome.check.passed and not prev_passed:
         if game.is_last_quest:
             level_complete = True
         else:
