@@ -997,7 +997,7 @@ code {
     letter-spacing: 0.15em;
     text-transform: uppercase;
     box-shadow: 0 0 40px rgba(212, 175, 55, 0.4);
-    z-index: 200;
+    z-index: 1100;
     animation: toastFade 2s ease-in-out forwards;
 }
 @keyframes toastFade {
