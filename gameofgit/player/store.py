@@ -10,6 +10,7 @@ import json
 import os
 import re
 import tempfile
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -22,6 +23,25 @@ class InvalidName(ValueError):
 
 _SLUG_RE = re.compile(r"[^a-z0-9_]+")
 
+# Stroked / ligature letters that NFKD won't decompose.
+# Keep this list in sync with the JS `FOLD_MAP` in web/static/index.html.
+_FOLD_MAP = str.maketrans({
+    "ł": "l", "Ł": "l",
+    "đ": "d", "Đ": "d",
+    "ø": "o", "Ø": "o",
+    "æ": "ae", "Æ": "ae",
+    "œ": "oe", "Œ": "oe",
+    "ß": "ss",
+})
+
+
+def _fold_to_ascii(text: str) -> str:
+    """Map common non-ASCII Latin letters to their ASCII equivalents."""
+    # NFKD decomposes "ó" -> "o" + combining acute; we then drop the marks.
+    decomposed = unicodedata.normalize("NFKD", text)
+    stripped = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+    return stripped.translate(_FOLD_MAP)
+
 
 def slugify(name: str) -> str:
     """Normalize a human-entered name to a filesystem-safe slug.
@@ -29,8 +49,8 @@ def slugify(name: str) -> str:
     Two names that normalize to the same slug share a profile. This is a
     feature for a LAN-local training tool; don't try to "fix" it.
     """
-    base = name.strip().lower()
-    slug = _SLUG_RE.sub("_", base).strip("_")
+    folded = _fold_to_ascii(name.strip()).lower()
+    slug = _SLUG_RE.sub("_", folded).strip("_")
     if not slug:
         raise InvalidName(
             "That name can't be written in the book — try another."

@@ -22,6 +22,20 @@ def test_slugify_lowercases_and_strips():
     assert slugify("  robb   stark  ") == "robb_stark"
 
 
+def test_slugify_handles_polish_and_other_latin_diacritics():
+    # Combining diacritics (NFKD decomposes these cleanly).
+    assert slugify("Kraków") == "krakow"
+    assert slugify("Héloïse") == "heloise"
+    assert slugify("François") == "francois"
+    assert slugify("Zażółć") == "zazolc"
+    # Stroked letters need a manual map — NFKD alone leaves them alone.
+    assert slugify("Łukasz") == "lukasz"
+    assert slugify("Łódź") == "lodz"
+    # Ligatures / eszett.
+    assert slugify("Straße") == "strasse"
+    assert slugify("Æther") == "aether"
+
+
 def test_slugify_rejects_empty_after_normalization():
     with pytest.raises(InvalidName):
         slugify("   ")

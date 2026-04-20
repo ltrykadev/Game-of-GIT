@@ -344,8 +344,27 @@
                 }
             });
 
+            // Must produce the SAME slug as gameofgit.player.store.slugify.
+            // Stroked / ligature letters that NFKD won't decompose.
+            var FOLD_MAP = {
+                "ł": "l", "Ł": "l",
+                "đ": "d", "Đ": "d",
+                "ø": "o", "Ø": "o",
+                "æ": "ae", "Æ": "ae",
+                "œ": "oe", "Œ": "oe",
+                "ß": "ss"
+            };
+            function foldToAscii(s) {
+                // NFD decomposes "ó" -> "o" + combining acute; strip the marks.
+                var decomposed = s.normalize("NFD").replace(/\p{M}/gu, "");
+                return decomposed.replace(/[\u0100-\u024F\u00C0-\u00FF]/g, function(ch) {
+                    return Object.prototype.hasOwnProperty.call(FOLD_MAP, ch) ? FOLD_MAP[ch] : ch;
+                });
+            }
             function slugify(s) {
-                return s.trim().toLowerCase().replace(/[^a-z0-9_]+/g, "_").replace(/^_+|_+$/g, "");
+                return foldToAscii(s.trim()).toLowerCase()
+                    .replace(/[^a-z0-9_]+/g, "_")
+                    .replace(/^_+|_+$/g, "");
             }
         })();
         </script>
