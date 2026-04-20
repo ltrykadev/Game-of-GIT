@@ -73,12 +73,3 @@ def test_hint_reveals_one_at_a_time():
         gid = _start_game(client)
         assert client.post(f"/api/game/{gid}/hint").json()["hints_revealed"] != []
         client.delete(f"/api/game/{gid}")
-
-
-def test_suggest_endpoint_returns_correction_for_typo():
-    with TestClient(app) as client:
-        gid = _start_game(client)
-        r = client.post(f"/api/game/{gid}/suggest", json={"cmdline": "git innit"})
-        assert r.status_code == 200
-        assert r.json().get("suggestion")
-        client.delete(f"/api/game/{gid}")

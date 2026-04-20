@@ -6,7 +6,6 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from gameofgit.engine import suggest
 from gameofgit.player.store import InvalidName, load_or_create, save
 from gameofgit.web.games import close_game, get_game, new_game
 from gameofgit.web.schemas import (
@@ -17,8 +16,6 @@ from gameofgit.web.schemas import (
     QuestView,
     RunRequest,
     RunResponse,
-    SuggestRequest,
-    SuggestResponse,
     player_view,
     quest_view,
 )
@@ -156,16 +153,6 @@ async def reveal_hint(gid: str) -> QuestView:
         game.hints_revealed += 1
 
     return quest_view(game)
-
-
-@app.post("/api/game/{gid}/suggest", response_model=SuggestResponse)
-async def get_suggestion(gid: str, req: SuggestRequest) -> SuggestResponse:
-    game = get_game(gid)
-    if game is None:
-        raise HTTPException(status_code=404, detail="Game not found")
-
-    correction = suggest(req.cmdline, game.quest.allowed)
-    return SuggestResponse(suggestion=correction)
 
 
 @app.delete("/api/game/{gid}", status_code=204)

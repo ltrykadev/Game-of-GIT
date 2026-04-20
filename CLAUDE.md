@@ -17,7 +17,6 @@ Game of GIT teaches Git through a leveled, task-oriented game. Key design constr
   - **Left pane** — simulated shell where the player types `git` commands.
   - **Right pane** — current task with explanation and *hidden tips that reveal on demand*.
 - **Task-oriented:** each level is a set of quests; the player completes a quest by typing any `git` command(s) that achieve the described outcome. There is no single "correct" command string.
-- **Typing-aware:** the game watches input as it's typed and suggests corrections for typos or likely-wrong commands — this is a core UX feature, not a nice-to-have.
 - **Mistakes aren't punished** — they're a learning surface. Error feedback should teach, not score-penalize.
 
 ## Level structure (summary; full text in `README.md`)
@@ -44,7 +43,7 @@ Level 4 is labeled a "boss fight" (conflict resolution) and Level 10 is the "fin
 - **Quest success = repo state, not command string.** Each quest needs a predicate that inspects the sandbox repo (e.g. "HEAD has ≥1 commit", "branch `feature/x` exists and is merged into `main`"). Design quests around these predicates from the start; don't hardcode expected commands.
 - **Sandbox isolation.** The player runs real `git` against a throwaway repo per session/level. Never run quest commands against the user's working tree. A per-level temp directory (e.g. under `/tmp` or `tempfile.mkdtemp`) is the natural shape.
 - **README is bilingual** (English framing, Polish quest text). Keep in-game text Polish unless the user changes direction; keep code/comments/docs English.
-- **TUI library choice is open.** `textual`, `urwid`, `prompt_toolkit`, and `rich` are all viable for the two-pane + live-typing-suggestions UX. Ask the user before picking — this choice shapes the whole architecture.
+- **TUI library choice is open.** `textual`, `urwid`, `prompt_toolkit`, and `rich` are all viable for the two-pane UX. Ask the user before picking — this choice shapes the whole architecture.
 
 ## Environment
 

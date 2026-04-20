@@ -503,26 +503,6 @@ main {
     font-style: italic;
 }
 
-/* Suggestion line */
-.suggestion-bar {
-    height: 1.6rem;
-    padding: 0 1.2rem;
-    display: flex;
-    align-items: center;
-    background: rgba(212, 175, 55, 0.04);
-    border-top: 1px solid rgba(212, 175, 55, 0.1);
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--gold-dim);
-    font-style: italic;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-.suggestion-bar.hidden {
-    visibility: hidden;
-}
-
 /* Prompt row */
 .prompt-row {
     display: flex;

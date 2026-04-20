@@ -11,7 +11,6 @@
 // Module state
 // ---------------------------------------------------------------------------
 let gameId = null;
-let suggestTimer = null;
 // Cached view of the latest quest state — used by the /exit summary, which
 // needs progress numbers without making another round-trip.
 let currentQuest = null;
@@ -58,13 +57,6 @@ async function runCommand(cmdline) {
 
 async function revealHint() {
     return apiFetch("/api/game/" + gameId + "/hint", { method: "POST" });
-}
-
-async function getSuggestion(cmdline) {
-    return apiFetch("/api/game/" + gameId + "/suggest", {
-        method: "POST",
-        body: JSON.stringify({ cmdline: cmdline }),
-    });
 }
 
 async function closeGame() {
@@ -193,18 +185,6 @@ function renderStatus(quest) {
     detail.textContent = quest.check_detail || "";
 }
 
-function showSuggestion(text) {
-    var bar = getEl("suggestion-bar");
-    var textEl = getEl("suggestion-text");
-    if (text) {
-        textEl.textContent = text;
-        bar.classList.remove("hidden");
-    } else {
-        bar.classList.add("hidden");
-        textEl.textContent = "";
-    }
-}
-
 function showLevelComplete() {
     var overlay = getEl("level-complete-overlay");
     var xpLine = getEl("level-complete-xp");
@@ -286,7 +266,6 @@ function showExitSummary() {
 async function handleEnter(input) {
     var cmdline = input.value.trim();
     input.value = "";
-    showSuggestion(null);
 
     if (!cmdline) return;
 
@@ -361,25 +340,6 @@ async function handleEnter(input) {
     }
 }
 
-function scheduleTypoCheck(input) {
-    clearTimeout(suggestTimer);
-    var cmdline = input.value;
-
-    if (!cmdline.trim() || cmdline.trim() === "?") {
-        showSuggestion(null);
-        return;
-    }
-
-    suggestTimer = setTimeout(async function() {
-        try {
-            var res = await getSuggestion(cmdline);
-            showSuggestion(res.suggestion || null);
-        } catch (_) {
-            // Suggestion is best-effort — ignore errors silently
-        }
-    }, 150);
-}
-
 // ---------------------------------------------------------------------------
 // Boot
 // ---------------------------------------------------------------------------
@@ -416,10 +376,6 @@ async function init() {
         if (e.key === "Enter") {
             handleEnter(input);
         }
-    });
-
-    input.addEventListener("input", function() {
-        scheduleTypoCheck(input);
     });
 
     getEl("hint-btn").addEventListener("click", async function() {

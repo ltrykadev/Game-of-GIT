@@ -47,14 +47,6 @@ class RunResponse(BaseModel):
     player: "PlayerView"
 
 
-class SuggestRequest(BaseModel):
-    cmdline: str
-
-
-class SuggestResponse(BaseModel):
-    suggestion: str | None
-
-
 class CreatePlayerRequest(BaseModel):
     name: str
 

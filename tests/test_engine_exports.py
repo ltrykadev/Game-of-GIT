@@ -18,5 +18,4 @@ def test_engine_all_declares_public_api():
         "Outcome",
         "QuestSession",
         "EngineError",
-        "suggest",
     }
