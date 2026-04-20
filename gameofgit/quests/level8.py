@@ -3,6 +3,7 @@ from pathlib import Path
 
 from gameofgit.engine.quest import CheckResult, Quest, SessionState
 from gameofgit.quests._helpers import (
+    commit_count,
     commit_file,
     head_message,
     run_git,
@@ -93,6 +94,12 @@ def _seed_wip_commit(sandbox: Path) -> None:
 
 
 def _check_amend_your_last_commit(sandbox: Path, _state: SessionState) -> CheckResult:
+    if commit_count(sandbox) != 1:
+        return CheckResult(
+            False,
+            "History has more than one commit — amend the existing one, "
+            "don't stack a new commit on top.",
+        )
     msg = head_message(sandbox)
     if msg == "wip" or len(msg) < 10:
         return CheckResult(

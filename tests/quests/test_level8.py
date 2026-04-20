@@ -33,3 +33,15 @@ def test_amend_your_last_commit_pass(tmp_path):
     assert AMEND_YOUR_LAST_COMMIT.check(tmp_path, _blank()).passed is False
     run_git(["git", "commit", "--amend", "-q", "-m", "Properly describe the work"], cwd=tmp_path)
     assert AMEND_YOUR_LAST_COMMIT.check(tmp_path, _blank()).passed is True
+
+
+def test_amend_rejects_extra_commit(tmp_path):
+    """Stacking a new commit with a good message must NOT pass — amend is verb-specific."""
+    AMEND_YOUR_LAST_COMMIT.seed(tmp_path)
+    run_git(
+        ["git", "commit", "--allow-empty", "-q", "-m", "Reworked the WIP file"],
+        cwd=tmp_path,
+    )
+    result = AMEND_YOUR_LAST_COMMIT.check(tmp_path, _blank())
+    assert result.passed is False
+    assert "more than one commit" in result.detail.lower()
