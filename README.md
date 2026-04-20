@@ -4,7 +4,7 @@ Game of GIT is an interactive learning experience that turns mastering version c
 
 Each stage presents challenges inspired by real-world teamwork scenarios: fixing a broken repository, syncing remote branches, or recovering lost changes. The gameplay focuses on exploration, logical thinking, and experimentation — mistakes aren't punished, they're part of the learning process.
 
-As the game progresses, it introduces increasingly complex concepts while providing clear feedback and visualizations of repository history, making even advanced workflows intuitive. It's a blend of education and gameplay that helps players truly understand Git in practice — without the boredom of traditional tutorials.
+As the game progresses, it introduces increasingly complex concepts while providing clear feedback after each command and revealable hints when you're stuck, making even advanced workflows approachable. It's a blend of education and gameplay that helps players truly understand Git in practice — without the boredom of traditional tutorials.
 
 **Language:** Python. **Visualization:** Game of Thrones style. **Sound:** none.
 
