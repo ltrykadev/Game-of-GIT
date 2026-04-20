@@ -80,6 +80,14 @@ def _play_through(session: QuestSession, slug: str) -> None:
         session.run("git stash list")
     elif slug == "pop-a-stash":
         session.run("git stash pop")
+    elif slug == "remove-a-tracked-file":
+        session.run("git rm scroll.txt")
+        session.run('git commit -m "drop scroll"')
+    elif slug == "rename-a-file":
+        session.run("git mv oldname.txt newname.txt")
+        session.run('git commit -m "rename"')
+    elif slug == "amend-your-last-commit":
+        session.run('git commit --amend -m "Properly describe the work"')
     else:
         raise AssertionError(f"no playthrough defined for slug: {slug}")
 
