@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game of GIT: The Tears of DevSecOps</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css?v=4">
+    <link rel="stylesheet" href="/static/style.css?v=11">
 </head>
 <body class="home-page">
 
@@ -103,131 +103,141 @@
                        (a) dark shadow offset down-right    — "pressed into stone" depression
                        (b) bright highlight offset up-left  — rim lit by overhead firelight
                        (c) main fill with vertical emboss gradient
-                     All three tiers use the same technique. No color animation — static metal. -->
-                <!-- Left half: "GAME OF G" -->
-                <text x="450" y="105" text-anchor="end" dx="-40"
-                      class="logo-tier-1"
-                      fill="rgba(0,0,0,0.85)"
-                      transform="translate(2,4)">GAME OF G</text>
-                <text x="450" y="105" text-anchor="end" dx="-40"
-                      class="logo-tier-1"
-                      fill="rgba(255,240,180,0.35)"
-                      transform="translate(-1,-1)">GAME OF G</text>
-                <text x="450" y="105" text-anchor="end" dx="-40"
-                      class="logo-tier-1"
-                      fill="url(#embossGrad)"
-                      filter="url(#glow)">GAME OF G</text>
+                     The whole tier is wrapped in a translate so the lopsided "GAME OF G"
+                     (9 glyphs) and "T" (1 glyph) halves read as one centred wordmark. -->
+                <g class="tier-1-wrap" transform="translate(210,0)">
+                    <!-- Left half: "GAME OF G" -->
+                    <text x="450" y="105" text-anchor="end" dx="-40"
+                          class="logo-tier-1"
+                          fill="rgba(0,0,0,0.85)"
+                          transform="translate(2,4)">GAME OF G</text>
+                    <text x="450" y="105" text-anchor="end" dx="-40"
+                          class="logo-tier-1"
+                          fill="rgba(255,240,180,0.35)"
+                          transform="translate(-1,-1)">GAME OF G</text>
+                    <text x="450" y="105" text-anchor="end" dx="-40"
+                          class="logo-tier-1"
+                          fill="url(#embossGrad)"
+                          filter="url(#glow)">GAME OF G</text>
 
-                <!-- Right half: "T" — placed just right of the sword -->
-                <text x="450" y="105" text-anchor="start" dx="40"
-                      class="logo-tier-1"
-                      fill="rgba(0,0,0,0.85)"
-                      transform="translate(2,4)">T</text>
-                <text x="450" y="105" text-anchor="start" dx="40"
-                      class="logo-tier-1"
-                      fill="rgba(255,240,180,0.35)"
-                      transform="translate(-1,-1)">T</text>
-                <text x="450" y="105" text-anchor="start" dx="40"
-                      class="logo-tier-1"
-                      fill="url(#embossGrad)"
-                      filter="url(#glow)">T</text>
+                    <!-- Right half: "T" — placed just right of the sword -->
+                    <text x="450" y="105" text-anchor="start" dx="40"
+                          class="logo-tier-1"
+                          fill="rgba(0,0,0,0.85)"
+                          transform="translate(2,4)">T</text>
+                    <text x="450" y="105" text-anchor="start" dx="40"
+                          class="logo-tier-1"
+                          fill="rgba(255,240,180,0.35)"
+                          transform="translate(-1,-1)">T</text>
+                    <text x="450" y="105" text-anchor="start" dx="40"
+                          class="logo-tier-1"
+                          fill="url(#embossGrad)"
+                          filter="url(#glow)">T</text>
 
-                <!-- Sword: stands where the "I" of "GIT" belongs. -->
-                <!-- Coordinate system: center ≈ (450, ~70). Sword is ~110px tall. -->
-                <g class="sword" transform="translate(450, 70)" filter="url(#bladeGlint)">
-                    <!-- Blade (tip pointing down, tapering slightly) -->
-                    <path d="M -5 -20 L -5 50 L 0 60 L 5 50 L 5 -20 Z"
-                          fill="url(#steelGrad)"
-                          stroke="rgba(0,0,0,0.4)" stroke-width="0.5"/>
-                    <!-- Fuller (center groove highlight) -->
-                    <line x1="0" y1="-18" x2="0" y2="48"
-                          stroke="rgba(255,255,255,0.35)" stroke-width="0.8"/>
-                    <!-- Crossguard -->
-                    <rect x="-30" y="-26" width="60" height="7" rx="1.5"
-                          fill="url(#goldHiltGrad)"
-                          stroke="rgba(0,0,0,0.3)" stroke-width="0.5"/>
-                    <!-- Crossguard tips -->
-                    <circle cx="-30" cy="-22.5" r="3" fill="url(#goldHiltGrad)"/>
-                    <circle cx="30"  cy="-22.5" r="3" fill="url(#goldHiltGrad)"/>
-                    <!-- Grip -->
-                    <rect x="-3" y="-38" width="6" height="12" fill="#2b1d0f"
-                          stroke="rgba(212,175,55,0.5)" stroke-width="0.4"/>
-                    <!-- Grip wrap detail -->
-                    <line x1="-3" y1="-34" x2="3" y2="-34" stroke="rgba(212,175,55,0.6)" stroke-width="0.5"/>
-                    <line x1="-3" y1="-30" x2="3" y2="-30" stroke="rgba(212,175,55,0.6)" stroke-width="0.5"/>
-                    <!-- Pommel -->
-                    <circle cx="0" cy="-42" r="4.5" fill="url(#goldHiltGrad)"
-                            stroke="rgba(0,0,0,0.4)" stroke-width="0.5"/>
-                    <circle cx="0" cy="-42" r="1.8" fill="#ffe066">
-                        <animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite"/>
-                    </circle>
+                    <!-- Sword: stands where the "I" of "GIT" belongs. -->
+                    <!-- Local center (450, 70); wrap shifts effective position to (660, 70). -->
+                    <g class="sword" transform="translate(450, 70)" filter="url(#bladeGlint)">
+                        <!-- Blade (tip pointing down, tapering slightly) -->
+                        <path d="M -5 -20 L -5 50 L 0 60 L 5 50 L 5 -20 Z"
+                              fill="url(#steelGrad)"
+                              stroke="rgba(0,0,0,0.4)" stroke-width="0.5"/>
+                        <!-- Fuller (center groove highlight) -->
+                        <line x1="0" y1="-18" x2="0" y2="48"
+                              stroke="rgba(255,255,255,0.35)" stroke-width="0.8"/>
+                        <!-- Crossguard -->
+                        <rect x="-30" y="-26" width="60" height="7" rx="1.5"
+                              fill="url(#goldHiltGrad)"
+                              stroke="rgba(0,0,0,0.3)" stroke-width="0.5"/>
+                        <!-- Crossguard tips -->
+                        <circle cx="-30" cy="-22.5" r="3" fill="url(#goldHiltGrad)"/>
+                        <circle cx="30"  cy="-22.5" r="3" fill="url(#goldHiltGrad)"/>
+                        <!-- Grip -->
+                        <rect x="-3" y="-38" width="6" height="12" fill="#2b1d0f"
+                              stroke="rgba(212,175,55,0.5)" stroke-width="0.4"/>
+                        <!-- Grip wrap detail -->
+                        <line x1="-3" y1="-34" x2="3" y2="-34" stroke="rgba(212,175,55,0.6)" stroke-width="0.5"/>
+                        <line x1="-3" y1="-30" x2="3" y2="-30" stroke="rgba(212,175,55,0.6)" stroke-width="0.5"/>
+                        <!-- Pommel -->
+                        <circle cx="0" cy="-42" r="4.5" fill="url(#goldHiltGrad)"
+                                stroke="rgba(0,0,0,0.4)" stroke-width="0.5"/>
+                        <circle cx="0" cy="-42" r="1.8" fill="#ffe066">
+                            <animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite"/>
+                        </circle>
+                    </g>
+
+                    <!-- Shimmer sweep over tier 1 (metallic sheen moving across text) -->
+                    <text x="450" y="105" text-anchor="end" dx="-40"
+                          class="logo-tier-1"
+                          fill="url(#sheenGrad)"
+                          opacity="0.9">GAME OF G</text>
+                    <text x="450" y="105" text-anchor="start" dx="40"
+                          class="logo-tier-1"
+                          fill="url(#sheenGrad)"
+                          opacity="0.9">T</text>
                 </g>
 
-                <!-- Shimmer sweep over tier 1 (metallic sheen moving across text) -->
-                <text x="450" y="105" text-anchor="end" dx="-40"
-                      class="logo-tier-1"
-                      fill="url(#sheenGrad)"
-                      opacity="0.9">GAME OF G</text>
-                <text x="450" y="105" text-anchor="start" dx="40"
-                      class="logo-tier-1"
-                      fill="url(#sheenGrad)"
-                      opacity="0.9">T</text>
-
-                <!-- ================ TIER 2: small uppercase subtitle (same emboss style) ================ -->
-                <text x="450" y="195" text-anchor="middle"
+                <!-- ================ TIER 2: "THE TEARS OF" (40px — half the previous size) ================ -->
+                <text x="450" y="190" text-anchor="middle"
                       class="logo-tier-2"
-                      fill="rgba(0,0,0,0.8)"
+                      fill="rgba(0,0,0,0.9)"
                       transform="translate(1,2)">THE TEARS OF</text>
-                <text x="450" y="195" text-anchor="middle"
+                <text x="450" y="190" text-anchor="middle"
                       class="logo-tier-2"
-                      fill="rgba(255,240,180,0.3)"
+                      fill="rgba(255,240,180,0.35)"
                       transform="translate(-0.5,-0.5)">THE TEARS OF</text>
-                <text x="450" y="195" text-anchor="middle"
+                <text x="450" y="190" text-anchor="middle"
                       class="logo-tier-2"
-                      fill="url(#embossGrad)">THE TEARS OF</text>
+                      fill="url(#embossGrad)"
+                      filter="url(#glow)">THE TEARS OF</text>
 
-                <!-- ================ TIER 3: "DEVSECOPS" — the weighted base (emboss + sheen) ================ -->
-                <text x="450" y="320" text-anchor="middle"
+                <!-- Sheen sweep over tier 2 (matches tier 3) -->
+                <text x="450" y="190" text-anchor="middle"
+                      class="logo-tier-2"
+                      fill="url(#sheenGrad)"
+                      opacity="0.75">THE TEARS OF</text>
+
+                <!-- ================ TIER 3: "DEVSECOPS" (40px — same size as TIER 2) ================ -->
+                <text x="450" y="240" text-anchor="middle"
                       class="logo-tier-3"
                       fill="rgba(0,0,0,0.9)"
-                      transform="translate(3,6)">DEVSECOPS</text>
-                <text x="450" y="320" text-anchor="middle"
+                      transform="translate(1,2)">DEVSECOPS</text>
+                <text x="450" y="240" text-anchor="middle"
                       class="logo-tier-3"
-                      fill="rgba(255,240,180,0.4)"
-                      transform="translate(-1.5,-1.5)">DEVSECOPS</text>
-                <text x="450" y="320" text-anchor="middle"
+                      fill="rgba(255,240,180,0.35)"
+                      transform="translate(-0.5,-0.5)">DEVSECOPS</text>
+                <text x="450" y="240" text-anchor="middle"
                       class="logo-tier-3"
                       fill="url(#embossGrad)"
                       filter="url(#glow)">DEVSECOPS</text>
 
                 <!-- Sheen sweep over tier 3 (subtle specular highlight moving across) -->
-                <text x="450" y="320" text-anchor="middle"
+                <text x="450" y="240" text-anchor="middle"
                       class="logo-tier-3"
                       fill="url(#sheenGrad)"
                       opacity="0.75">DEVSECOPS</text>
 
-                <!-- Decorative rules above and below the subtitle -->
-                <line x1="180" y1="170" x2="720" y2="170"
+                <!-- Decorative rules bracketing the subtitle -->
+                <line x1="200" y1="155" x2="700" y2="155"
                       stroke="url(#fireGrad)" stroke-width="1" opacity="0.5"
                       class="logo-rule"/>
-                <line x1="180" y1="220" x2="720" y2="220"
+                <line x1="200" y1="260" x2="700" y2="260"
                       stroke="url(#fireGrad)" stroke-width="1" opacity="0.5"
                       class="logo-rule"/>
 
-                <!-- Ember particles (rising from the bottom of DEVSECOPS) -->
+                <!-- Ember particles (rising from the bottom of DEVSECOPS at y=240) -->
                 <g class="embers" filter="url(#emberGlow)">
-                    <circle class="ember ember-1"  cx="190" cy="360" r="2.5" fill="#ff9500"/>
-                    <circle class="ember ember-2"  cx="280" cy="375" r="1.8" fill="#ffcc33"/>
-                    <circle class="ember ember-3"  cx="370" cy="355" r="3"   fill="#d4af37"/>
-                    <circle class="ember ember-4"  cx="460" cy="370" r="2"   fill="#ff6600"/>
-                    <circle class="ember ember-5"  cx="540" cy="362" r="2.2" fill="#ffe066"/>
-                    <circle class="ember ember-6"  cx="630" cy="376" r="1.5" fill="#ff9500"/>
-                    <circle class="ember ember-7"  cx="225" cy="374" r="1.8" fill="#d4af37"/>
-                    <circle class="ember ember-8"  cx="675" cy="358" r="2.8" fill="#ffcc33"/>
-                    <circle class="ember ember-9"  cx="325" cy="380" r="1.5" fill="#ff6600"/>
-                    <circle class="ember ember-10" cx="505" cy="378" r="2"   fill="#ffe066"/>
-                    <circle class="ember ember-11" cx="415" cy="368" r="1.7" fill="#ff9500"/>
-                    <circle class="ember ember-12" cx="590" cy="384" r="2.3" fill="#d4af37"/>
+                    <circle class="ember ember-1"  cx="190" cy="285" r="2.5" fill="#ff9500"/>
+                    <circle class="ember ember-2"  cx="280" cy="295" r="1.8" fill="#ffcc33"/>
+                    <circle class="ember ember-3"  cx="370" cy="280" r="3"   fill="#d4af37"/>
+                    <circle class="ember ember-4"  cx="460" cy="292" r="2"   fill="#ff6600"/>
+                    <circle class="ember ember-5"  cx="540" cy="283" r="2.2" fill="#ffe066"/>
+                    <circle class="ember ember-6"  cx="630" cy="296" r="1.5" fill="#ff9500"/>
+                    <circle class="ember ember-7"  cx="225" cy="294" r="1.8" fill="#d4af37"/>
+                    <circle class="ember ember-8"  cx="675" cy="281" r="2.8" fill="#ffcc33"/>
+                    <circle class="ember ember-9"  cx="325" cy="298" r="1.5" fill="#ff6600"/>
+                    <circle class="ember ember-10" cx="505" cy="297" r="2"   fill="#ffe066"/>
+                    <circle class="ember ember-11" cx="415" cy="290" r="1.7" fill="#ff9500"/>
+                    <circle class="ember ember-12" cx="590" cy="302" r="2.3" fill="#d4af37"/>
                 </g>
             </svg>
         </div>
@@ -256,118 +266,10 @@
             </p>
         </section>
 
-        <!-- ===================== HOW TO PLAY ===================== -->
-        <section class="how-to-play">
-            <h2>How to Play</h2>
-            <ul>
-                <li>Type real <code>git</code> commands in the shell pane — exactly as
-                    you would in a terminal.</li>
-                <li>Each quest succeeds when the <em>repository state</em> matches the
-                    goal — there is no single "correct" command string.</li>
-                <li>Type <code>?</code> and press Enter, or click <strong>Show next
-                    hint</strong>, to reveal a clue without penalty.</li>
-                <li>Only the commands relevant to the current level are available —
-                    the whitelist is shown in the quest pane.</li>
-                <li>The sandbox is disposable. Close the tab, lose the game, start fresh —
-                    no lasting damage, ever.</li>
-            </ul>
-        </section>
-
-        <!-- ===================== PLAY GATE (name input) ===================== -->
-        <div class="play-gate">
-            <label for="player-name" class="name-label">Enter your name, ser:</label>
-            <input
-                id="player-name"
-                class="name-input"
-                type="text"
-                maxlength="40"
-                autocomplete="off"
-                autocorrect="off"
-                autocapitalize="words"
-                spellcheck="false"
-                placeholder="Robb Stark"
-            />
-            <button id="play-btn" class="play-btn" type="button" disabled>PLAY</button>
-            <p id="play-greeting" class="play-greeting hidden"></p>
+        <!-- ===================== ENTER THE REALM ===================== -->
+        <div class="play-button-wrap">
+            <a href="/start" class="play-button">Enter the realm</a>
         </div>
-
-        <script>
-        (function() {
-            var input = document.getElementById("player-name");
-            var btn = document.getElementById("play-btn");
-            var greet = document.getElementById("play-greeting");
-
-            // Prefill from localStorage
-            var cached = localStorage.getItem("gog.playerName");
-            if (cached) input.value = cached;
-            btn.disabled = input.value.trim().length === 0;
-
-            input.addEventListener("input", function() {
-                btn.disabled = input.value.trim().length === 0;
-            });
-
-            btn.addEventListener("click", async function() {
-                var name = input.value.trim();
-                if (!name) return;
-                btn.disabled = true;
-                try {
-                    var res = await fetch("/api/player", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ name: name }),
-                    });
-                    if (!res.ok) {
-                        var txt = await res.text().catch(function() { return ""; });
-                        greet.textContent = "The maesters could not write that name.";
-                        greet.classList.remove("hidden");
-                        btn.disabled = false;
-                        return;
-                    }
-                    var player = await res.json();
-                    localStorage.setItem("gog.playerName", name);
-                    localStorage.setItem("gog.playerSlug", slugify(name));
-                    if (player.xp > 0) {
-                        greet.textContent =
-                            "Welcome back, " + player.name + " — Tier: " +
-                            player.tier + ", " + player.xp + " XP";
-                        greet.classList.remove("hidden");
-                        setTimeout(function() {
-                            window.location.href = "/play";
-                        }, 1500);
-                    } else {
-                        window.location.href = "/play";
-                    }
-                } catch (err) {
-                    greet.textContent = "The scribes dropped their quill. Try again.";
-                    greet.classList.remove("hidden");
-                    btn.disabled = false;
-                }
-            });
-
-            // Must produce the SAME slug as gameofgit.player.store.slugify.
-            // Stroked / ligature letters that NFKD won't decompose.
-            var FOLD_MAP = {
-                "ł": "l", "Ł": "l",
-                "đ": "d", "Đ": "d",
-                "ø": "o", "Ø": "o",
-                "æ": "ae", "Æ": "ae",
-                "œ": "oe", "Œ": "oe",
-                "ß": "ss"
-            };
-            function foldToAscii(s) {
-                // NFD decomposes "ó" -> "o" + combining acute; strip the marks.
-                var decomposed = s.normalize("NFD").replace(/\p{M}/gu, "");
-                return decomposed.replace(/[\u0100-\u024F\u00C0-\u00FF]/g, function(ch) {
-                    return Object.prototype.hasOwnProperty.call(FOLD_MAP, ch) ? FOLD_MAP[ch] : ch;
-                });
-            }
-            function slugify(s) {
-                return foldToAscii(s.trim()).toLowerCase()
-                    .replace(/[^a-z0-9_]+/g, "_")
-                    .replace(/^_+|_+$/g, "");
-            }
-        })();
-        </script>
 
         <!-- ===================== FOOTER ===================== -->
         <footer class="site-footer">

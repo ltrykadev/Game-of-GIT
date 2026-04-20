@@ -31,7 +31,7 @@ app.mount("/static", StaticFiles(directory=_STATIC_DIR), name="static")
 async def _no_cache_assets(request: Request, call_next):
     response = await call_next(request)
     path = request.url.path
-    if path.startswith("/static/") or path in ("/", "/play"):
+    if path.startswith("/static/") or path in ("/", "/start", "/play"):
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
@@ -46,6 +46,11 @@ async def _no_cache_assets(request: Request, call_next):
 @app.get("/", response_class=FileResponse, include_in_schema=False)
 async def index_page() -> FileResponse:
     return FileResponse(_STATIC_DIR / "index.html", media_type="text/html")
+
+
+@app.get("/start", response_class=FileResponse, include_in_schema=False)
+async def start_page() -> FileResponse:
+    return FileResponse(_STATIC_DIR / "start.html", media_type="text/html")
 
 
 @app.get("/play", response_class=FileResponse, include_in_schema=False)

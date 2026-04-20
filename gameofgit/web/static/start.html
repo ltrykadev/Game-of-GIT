@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game of GIT — Ready your quill</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css?v=11">
+</head>
+<body class="home-page">
+
+    <!-- ===================== COMPACT HEADER ===================== -->
+    <header class="start-header">
+        <a href="/" class="mini-logo">GAME OF GIT</a>
+    </header>
+
+    <main>
+        <!-- ===================== HOW TO PLAY ===================== -->
+        <section class="how-to-play">
+            <h2>How to Play</h2>
+            <ul>
+                <li>Type real <code>git</code> commands in the shell pane — exactly as
+                    you would in a terminal.</li>
+                <li>Each quest succeeds when the <em>repository state</em> matches the
+                    goal — there is no single "correct" command string.</li>
+                <li>Type <code>?</code> and press Enter, or click <strong>Show next
+                    hint</strong>, to reveal a clue without penalty.</li>
+                <li>Only the commands relevant to the current level are available —
+                    the whitelist is shown in the quest pane.</li>
+                <li>The sandbox is disposable. Close the tab, lose the game, start fresh —
+                    no lasting damage, ever.</li>
+            </ul>
+        </section>
+
+        <!-- ===================== PLAY GATE (name input) ===================== -->
+        <div class="play-gate">
+            <label for="player-name" class="name-label">Enter your name:</label>
+            <input
+                id="player-name"
+                class="name-input"
+                type="text"
+                maxlength="40"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="words"
+                spellcheck="false"
+                placeholder="Robb Stark"
+            />
+            <button id="play-btn" class="play-btn" type="button" disabled>PLAY</button>
+            <p id="play-greeting" class="play-greeting hidden"></p>
+        </div>
+
+        <script>
+        (function() {
+            var input = document.getElementById("player-name");
+            var btn = document.getElementById("play-btn");
+            var greet = document.getElementById("play-greeting");
+
+            // Prefill from localStorage
+            var cached = localStorage.getItem("gog.playerName");
+            if (cached) input.value = cached;
+            btn.disabled = input.value.trim().length === 0;
+
+            input.addEventListener("input", function() {
+                btn.disabled = input.value.trim().length === 0;
+            });
+
+            btn.addEventListener("click", async function() {
+                var name = input.value.trim();
+                if (!name) return;
+                btn.disabled = true;
+                try {
+                    var res = await fetch("/api/player", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ name: name }),
+                    });
+                    if (!res.ok) {
+                        var txt = await res.text().catch(function() { return ""; });
+                        greet.textContent = "The maesters could not write that name.";
+                        greet.classList.remove("hidden");
+                        btn.disabled = false;
+                        return;
+                    }
+                    var player = await res.json();
+                    localStorage.setItem("gog.playerName", name);
+                    localStorage.setItem("gog.playerSlug", slugify(name));
+                    if (player.xp > 0) {
+                        greet.textContent =
+                            "Welcome back, " + player.name + " — Tier: " +
+                            player.tier + ", " + player.xp + " XP";
+                        greet.classList.remove("hidden");
+                        setTimeout(function() {
+                            window.location.href = "/play";
+                        }, 1500);
+                    } else {
+                        window.location.href = "/play";
+                    }
+                } catch (err) {
+                    greet.textContent = "The scribes dropped their quill. Try again.";
+                    greet.classList.remove("hidden");
+                    btn.disabled = false;
+                }
+            });
+
+            // Must produce the SAME slug as gameofgit.player.store.slugify.
+            // Stroked / ligature letters that NFKD won't decompose.
+            var FOLD_MAP = {
+                "ł": "l", "Ł": "l",
+                "đ": "d", "Đ": "d",
+                "ø": "o", "Ø": "o",
+                "æ": "ae", "Æ": "ae",
+                "œ": "oe", "Œ": "oe",
+                "ß": "ss"
+            };
+            function foldToAscii(s) {
+                // NFD decomposes "ó" -> "o" + combining acute; strip the marks.
+                var decomposed = s.normalize("NFD").replace(/\p{M}/gu, "");
+                return decomposed.replace(/[\u0100-\u024F\u00C0-\u00FF]/g, function(ch) {
+                    return Object.prototype.hasOwnProperty.call(FOLD_MAP, ch) ? FOLD_MAP[ch] : ch;
+                });
+            }
+            function slugify(s) {
+                return foldToAscii(s.trim()).toLowerCase()
+                    .replace(/[^a-z0-9_]+/g, "_")
+                    .replace(/^_+|_+$/g, "");
+            }
+        })();
+        </script>
+
+        <!-- ===================== FOOTER ===================== -->
+        <footer class="site-footer">
+            <p>The night is dark and full of merges.</p>
+        </footer>
+    </main>
+
+</body>
+</html>

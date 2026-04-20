@@ -24,7 +24,16 @@ def test_index_page_loads():
         r = client.get("/")
         assert r.status_code == 200
         assert "GAME OF GIT" in r.text or "Game of GIT" in r.text
+        assert 'href="/start"' in r.text
+
+
+def test_start_page_loads():
+    with TestClient(app) as client:
+        r = client.get("/start")
+        assert r.status_code == 200
+        assert "How to Play" in r.text
         assert "PLAY" in r.text.upper()
+        assert 'id="player-name"' in r.text
 
 
 def test_play_page_loads():

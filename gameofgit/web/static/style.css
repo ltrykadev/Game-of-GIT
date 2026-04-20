@@ -103,16 +103,11 @@ body {
     font-size: 90px;
     letter-spacing: 2px;
 }
-.logo-tier-2 {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 34px;
-    letter-spacing: 10px;
-}
+.logo-tier-2,
 .logo-tier-3 {
     font-family: var(--font-display);
     font-weight: 900;
-    font-size: 118px;
+    font-size: 40px;
     letter-spacing: 3px;
 }
 
@@ -242,6 +237,17 @@ main {
     padding: 0.1em 0.35em;
     border-radius: 3px;
     border: 1px solid rgba(255, 179, 71, 0.2);
+}
+
+/* ---------------------------------------------------------------------------
+   Compact header used by the /start page so the user knows they're still
+   inside Game of GIT without re-rendering the full hero logo.
+   -------------------------------------------------------------------------- */
+.start-header {
+    text-align: center;
+    padding: 1.2rem 0 0.4rem;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+    margin-bottom: 1.5rem;
 }
 
 /* ---------------------------------------------------------------------------
@@ -406,7 +412,7 @@ main {
     flex-shrink: 0;
 }
 
-.game-header .mini-logo {
+.mini-logo {
     font-family: var(--font-display);
     font-weight: 900;
     font-size: 1.1rem;
@@ -416,7 +422,7 @@ main {
     text-decoration: none;
 }
 
-.game-header .mini-logo:hover {
+.mini-logo:hover {
     color: var(--gold-bright);
 }
 
